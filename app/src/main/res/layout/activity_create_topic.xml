@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:background="?item_bg_color"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -33,7 +33,7 @@
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColorHint="@color/hint"
+                android:textColorHint="?attr/colorOnSurfaceVariant"
                 android:textSize="?text_large"
                 android:hint="@string/topic_title"
                 android:drawablePadding="2dp"
@@ -48,7 +48,7 @@
                 android:layout_gravity="end"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:text="@string/choose_node"
                 android:layout_marginLeft="@dimen/md_left_margin"/>
 

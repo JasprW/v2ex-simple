@@ -1,62 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--from http://www.google.com/design/spec/style/color.html-->
-    <!--Cyan 500-->
-    <!--Cyan 700-->
-    <!--red 600-->
 
     <!--常量-->
-
     <color name="accent">#E53935</color>
     <color name="black87">#E1000000</color>
     <color name="black">#FF000000</color>
     <color name="black54">#90000000</color>
     <color name="black_overlay">#66000000</color>
-    <color name="white">#ffffffff</color>
-    <color name="transparent">#00ffffff</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
     <color name="base_night">#242424</color>
     <color name="base_night_light">#303030</color>
-
     <!--常量 end-->
 
-    <color name="light_hint">#AAFFFFFF</color>
-    <color name="hint">@color/black54</color>
-    <color name="primary_light">#ff4dd0e1</color>
-    <color name="list_background">#e8e8e8</color>
-    <color name="chrome_tab">?toolbar_background</color>
+    <!-- Material 3 fallback palette (light) -->
+    <color name="primary">#006B79</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#A7EDFF</color>
+    <color name="on_primary_container">#001F24</color>
+    <color name="secondary">#4A6268</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#CCE7EE</color>
+    <color name="on_secondary_container">#051F23</color>
+    <color name="surface">#FBFCFD</color>
+    <color name="on_surface">#1B1C1D</color>
+    <color name="surface_variant">#DCE4E7</color>
+    <color name="on_surface_variant">#40484B</color>
+    <color name="background">#FBFCFD</color>
+    <color name="on_background">#1B1C1D</color>
+    <color name="outline">#70787B</color>
+    <color name="outline_variant">#C0C8CB</color>
+    <color name="error">#BA1A1A</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#FFDAD6</color>
+    <color name="on_error_container">#410002</color>
+
+    <color name="light_hint">@color/on_primary</color>
+    <color name="hint">@color/on_surface_variant</color>
+    <color name="primary_light">#4DD0E1</color>
+    <color name="list_background">@color/surface_variant</color>
+    <color name="chrome_tab">@color/surface</color>
     <color name="node_background">#41000000</color>
-    <color name="main_color">#00bcd4</color>
+    <color name="main_color">@color/primary</color>
     <color name="gray_400">#FFBDBDBD</color>
     <color name="gray_600">#FF757575</color>
 
-    <!--在night中变化的值-->
-<!--    <color name="status_bar_white">@color/white</color>-->
-    <color name="primary">#00bcd4</color>
     <color name="tab_select">@color/primary</color>
-<!--    <color name="primary_dark">#0097A7</color>-->
-    <color name="mode">#00bcd4</color>
-    <color name="content_font_color">#2d2d2d</color>
-    <color name="title_text">@color/black87</color>
-    <color name="toolbar_text">@color/black87</color>
-    <color name="toolbar_text_light">@color/white</color>
-<!--    <color name="item_background">@color/white</color>-->
-    <color name="username">@color/black87</color>
-<!--    <color name="nav_background">@color/white</color>-->
-<!--    <color name="toolbar_background">@color/white</color>-->
-    <color name="nav_icon">@color/black54</color>
-    <color name="light_background">#FFFFFF</color>
-    <color name="divider_color">#d5d5d5</color>
-    <color name="dark_divider_color">#A3A3A3</color>
-    <color name="trans_item_background">#61ffffff</color>
+    <color name="mode">@color/primary</color>
+    <color name="content_font_color">@color/on_surface</color>
+    <color name="title_text">@color/on_surface</color>
+    <color name="toolbar_text">@color/on_surface</color>
+    <color name="toolbar_text_light">@color/on_primary</color>
+    <color name="username">@color/on_surface</color>
+    <color name="nav_icon">@color/on_surface_variant</color>
+    <color name="light_background">@color/surface</color>
+    <color name="divider_color">@color/outline</color>
+    <color name="dark_divider_color">@color/outline_variant</color>
+    <color name="trans_item_background">#61FFFFFF</color>
     <color name="nav_fg">@color/transparent</color>
-    <color name="accent_orange">#ffffd600</color>
-<!--    <color name="bg_refresh">#FFFAFAFA</color>-->
-    <color name="fab">@color/accent_orange</color>
+    <color name="accent_orange">@color/secondary</color>
+    <color name="fab">@color/secondary_container</color>
     <color name="icon">@color/primary</color>
-<!--    <color name="bg_login">@color/primary</color>-->
     <color name="back_icon">@color/primary</color>
-    <color name="back_icon_login">@color/white</color>
-
-    <!--end night-->
+    <color name="back_icon_login">@color/on_primary</color>
 
 </resources>

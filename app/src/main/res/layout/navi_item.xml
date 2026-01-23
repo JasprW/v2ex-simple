@@ -14,7 +14,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginLeft="16dp"
-        app:tint="@color/nav_icon"
+        app:tint="?attr/colorOnSurfaceVariant"
         tools:src="@drawable/ic_block_primary_24dp"
          />
 
@@ -26,7 +26,7 @@
         android:paddingRight="16dp"
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
-        android:textColor="@color/title_text"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="?text_medium"
         android:textFontWeight="700"
         android:layout_marginRight="20dp"

@@ -11,6 +11,7 @@ import android.widget.EditText
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import com.google.android.material.color.MaterialColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import im.fdx.v2ex.R
@@ -25,7 +26,6 @@ import im.fdx.v2ex.ui.main.Topic
 import im.fdx.v2ex.utils.Keys
 import im.fdx.v2ex.utils.extensions.dealError
 import im.fdx.v2ex.utils.extensions.initTheme
-import im.fdx.v2ex.utils.extensions.setStatusBarColorInt
 import im.fdx.v2ex.utils.extensions.setUpToolbar
 import okhttp3.Call
 import okhttp3.Callback
@@ -43,6 +43,7 @@ class AllNodesActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAllNodesBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root, binding.appbar.root)
 
         setUpToolbar(getString(R.string.all_nodes))
         //这里是后续不卡的关键，但是第一次滑动还是卡
@@ -137,7 +138,13 @@ class AllNodesActivity : BaseActivity() {
         val menuItemCompat = menu.findItem(R.id.search_node)
         val searchView = menuItemCompat.actionView as SearchView
         val et = searchView.findViewById<EditText>(R.id.search_src_text)
-        et.setTextColor(ContextCompat.getColor(this, R.color.toolbar_text))
+        et.setTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorOnSurface,
+                ContextCompat.getColor(this, R.color.toolbar_text)
+            )
+        )
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 

@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?light_background"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -14,7 +13,7 @@
         android:background="@color/transparent"
         android:theme="@style/AppTheme.AppBarOverlay"
         app:contentInsetStartWithNavigation="0dp"
-        app:navigationIconTint="@color/primary"
+        app:navigationIconTint="?attr/colorPrimary"
 
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:title="">
@@ -141,7 +140,7 @@
                 android:elevation="18dp"
                 android:textAllCaps="false"
                 android:text="@string/login"
-                android:textColor="@color/icon"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="@dimen/text_size_large" />
 
             <ProgressBar
@@ -149,7 +148,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginTop="16dp"
-                android:indeterminateTint="@color/primary"
+                android:indeterminateTint="?attr/colorPrimary"
                 android:visibility="gone" />
 
 
@@ -162,7 +161,7 @@
                 android:padding="8dp"
                 android:background="?selectableItemBackground"
                 android:text="@string/register_tip"
-                android:textColor="@color/title_text"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_size_medium" />
 
             <TextView
@@ -172,7 +171,7 @@
                 android:padding="8dp"
                 android:background="?selectableItemBackground"
                 android:text="@string/google_login"
-                android:textColor="@color/title_text"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_size_medium" />
 
 

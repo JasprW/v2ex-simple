@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="?selectableItemBackground"
     android:gravity="center"
-    android:textColor="@color/title_text"
+    android:textColor="?attr/colorOnSurface"
     android:paddingTop="16dp"
     android:paddingBottom="16dp"
     android:textSize="?text_large"

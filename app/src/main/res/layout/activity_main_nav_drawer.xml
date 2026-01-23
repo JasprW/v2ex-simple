@@ -21,7 +21,7 @@
         android:layout_gravity="start"
         android:background="?item_bg_color"
         android:foreground="@color/nav_fg"
-        app:itemIconTint="@color/nav_icon"
+        app:itemIconTint="?attr/colorOnSurfaceVariant"
         app:itemTextAppearance="@style/VText">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="夜间模式"
                     android:src="@drawable/ic_night_mode"
-                    app:tint="@color/mode" />
+                    app:tint="?attr/colorPrimary" />
 
             </LinearLayout>
 

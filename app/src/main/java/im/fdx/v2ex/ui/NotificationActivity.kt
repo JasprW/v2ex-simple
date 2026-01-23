@@ -32,6 +32,7 @@ class NotificationActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notification)
+        applyEdgeToEdge(findViewById(android.R.id.content), findViewById(R.id.appbar_notification))
 
         setUpToolbar()
 

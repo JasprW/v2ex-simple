@@ -21,6 +21,7 @@ class FavorActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_follow_activity)
+        applyEdgeToEdge(findViewById(android.R.id.content), findViewById(R.id.appbar_follow))
 
         setUpToolbar(getString(R.string.my_follow))
 

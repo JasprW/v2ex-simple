@@ -10,6 +10,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.elvishew.xlog.XLog
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
 import im.fdx.v2ex.ui.NotificationActivity
 import im.fdx.v2ex.utils.Keys
@@ -71,7 +72,11 @@ class GetMsgWorker(val context: Context, workerParameters: WorkerParameters) : W
         val resultPendingIntent = stackBuilder
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE )
 
-        val color = ContextCompat.getColor(context, R.color.primary)
+        val color = MaterialColors.getColor(
+            context,
+            R.attr.colorPrimary,
+            ContextCompat.getColor(context, R.color.primary)
+        )
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -8,7 +8,7 @@
         <shape>
             <corners android:radius="8dp" />
             <stroke
-                android:color="@color/main_color"
+                android:color="?attr/colorPrimary"
                 android:width="1dp"/>
             <solid android:color="?light_background"/>
         </shape>
@@ -17,7 +17,7 @@
         <shape>
             <corners android:radius="8dp" />
             <stroke
-                android:color="@color/hint"
+                android:color="?attr/colorOnSurfaceVariant"
                 android:width="1dp"/>
             <solid android:color="?light_background"/>
         </shape>
@@ -27,7 +27,7 @@
         <shape>
             <corners android:radius="8dp" />
             <stroke
-                android:color="@color/hint"
+                android:color="?attr/colorOnSurfaceVariant"
                 android:width="1px"/>
             <solid android:color="?light_background"/>
         </shape>
@@ -35,4 +35,3 @@
 
 
 </selector>
-

@@ -2,18 +2,19 @@ package im.fdx.v2ex.ui
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.Window
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
 import im.fdx.v2ex.pref
 import im.fdx.v2ex.utils.Keys
-import im.fdx.v2ex.utils.extensions.setStatusBarColorInt
 
 const val MODE_SYSTEM = 0 //跟随系统，采用SP方式
 const val MODE_SMALL = 1
@@ -85,4 +86,49 @@ abstract class BaseActivity : AppCompatActivity() {
         }
         return res
     }
+
+    protected fun applyEdgeToEdge(root: View, appBar: View? = null, bottom: View? = null) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val surfaceColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.5f
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
+
+        val rootPadding = viewPadding(root)
+        val appBarPadding = appBar?.let { viewPadding(it) }
+        val bottomPadding = bottom?.let { viewPadding(it) }
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            root.setPadding(
+                rootPadding.left + systemBars.left,
+                rootPadding.top,
+                rootPadding.right + systemBars.right,
+                rootPadding.bottom
+            )
+            appBar?.setPadding(
+                appBarPadding!!.left,
+                appBarPadding.top + systemBars.top,
+                appBarPadding.right,
+                appBarPadding.bottom
+            )
+            bottom?.setPadding(
+                bottomPadding!!.left,
+                bottomPadding.top,
+                bottomPadding.right,
+                bottomPadding.bottom + systemBars.bottom
+            )
+            insets
+        }
+    }
+
+    private fun viewPadding(view: View): Padding {
+        return Padding(view.paddingLeft, view.paddingTop, view.paddingRight, view.paddingBottom)
+    }
 }
+
+private data class Padding(val left: Int, val top: Int, val right: Int, val bottom: Int)

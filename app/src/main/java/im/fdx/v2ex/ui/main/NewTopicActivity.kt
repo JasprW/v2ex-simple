@@ -16,6 +16,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import com.esafirm.imagepicker.features.ImagePicker
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import im.fdx.v2ex.R
 import im.fdx.v2ex.databinding.ActivityCreateTopicBinding
@@ -49,6 +50,7 @@ class NewTopicActivity : BaseActivity() {
         binding = ActivityCreateTopicBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        applyEdgeToEdge(binding.root, binding.toolbar.root)
         setUpToolbar(getString(R.string.new_topic))
 
 
@@ -255,9 +257,10 @@ class NewTopicActivity : BaseActivity() {
                                 Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_INDEFINITE)
                                     .setBackgroundTint(color)
                                     .setActionTextColor(
-                                        ContextCompat.getColor(
+                                        MaterialColors.getColor(
                                             applicationContext,
-                                            R.color.toolbar_text_light
+                                            R.attr.colorPrimary,
+                                            ContextCompat.getColor(applicationContext, R.color.primary)
                                         )
                                     )
                                     .setAction(R.string.ok) {}

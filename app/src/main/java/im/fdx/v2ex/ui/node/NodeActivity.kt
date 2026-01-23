@@ -57,6 +57,7 @@ class NodeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNodeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root, binding.appbarNode)
         setUpToolbar()
         supportActionBar?.setDisplayShowTitleEnabled(false) //很关键，不会一闪而过一个东西
 

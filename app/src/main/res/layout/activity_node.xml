@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:background="?item_bg_color"
     tools:context="im.fdx.v2ex.ui.node.NodeActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?toolbar_background"
-        android:fitsSystemWindows="true"
         android:elevation="4dp"
         android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -68,7 +67,7 @@
                     android:layout_marginStart="18dp"
                     android:layout_marginTop="8dp"
                     android:layout_toEndOf="@+id/iv_node_image"
-                    android:textColor="@color/toolbar_text"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="?text_small"
                     app:layout_constraintBottom_toBottomOf="@+id/iv_node_image"
                     app:layout_constraintStart_toEndOf="@+id/iv_node_image"
@@ -84,7 +83,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:textColor="@color/toolbar_text"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="?text_medium"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -127,7 +126,7 @@
         android:layout_marginBottom="@dimen/fab_margin"
         android:scaleType="fitXY"
         android:src="@drawable/ic_edit_white_24dp"
-        app:backgroundTint="@color/fab"
+        app:backgroundTint="?attr/colorSecondaryContainer"
         app:fabSize="normal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

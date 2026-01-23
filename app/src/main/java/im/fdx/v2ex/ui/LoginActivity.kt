@@ -57,6 +57,7 @@ class LoginActivity : BaseActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root, binding.toolbar)
         val toolbar = setUpToolbar()
         val usernamePref = pref.getString(Keys.KEY_USERNAME, "")
         binding.btnLogin.setOnClickListener {

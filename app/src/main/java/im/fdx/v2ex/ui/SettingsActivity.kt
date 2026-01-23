@@ -29,7 +29,6 @@ import im.fdx.v2ex.utils.Keys.PREF_TEXT_SIZE
 import im.fdx.v2ex.utils.Keys.PREF_VERSION
 import im.fdx.v2ex.utils.Keys.TAG_WORKER
 import im.fdx.v2ex.utils.Keys.notifyID
-import im.fdx.v2ex.utils.extensions.setStatusBarColorInt
 import im.fdx.v2ex.utils.extensions.setUpToolbar
 import im.fdx.v2ex.utils.extensions.toast
 
@@ -41,6 +40,7 @@ class SettingsActivity : BaseActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_settings)
+    applyEdgeToEdge(findViewById(android.R.id.content), findViewById(R.id.appbar_settings))
     setUpToolbar(getString(R.string.settings))
     supportFragmentManager.beginTransaction()
         .replace(R.id.container, SettingsFragment())

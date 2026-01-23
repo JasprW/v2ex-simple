@@ -14,9 +14,12 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.color.MaterialColors
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -111,6 +114,7 @@ class TopicFragment : BaseFragment() {
                     addAction(Keys.ACTION_LOGOUT)
                     addAction(Keys.ACTION_GET_MORE_REPLY)
                 })
+        applyWindowInsets()
         setFootView()
 
         mTopicId = (arguments?.get(Keys.KEY_TOPIC_ID) as String?) ?: ""
@@ -120,6 +124,7 @@ class TopicFragment : BaseFragment() {
         binding.toolbar.run {
             inflateMenu(R.menu.menu_details)
             setNavigationIcon(R.drawable.ic_arrow_back_primary_24dp)
+            navigationIcon?.setTint(MaterialColors.getColor(this, R.attr.colorPrimary))
             setNavigationOnClickListener {
                 activity?.finish()
             }
@@ -251,7 +256,13 @@ class TopicFragment : BaseFragment() {
                 } else {
                     binding.flReply.isClickable = true
                     binding.ivSend.imageTintList =
-                        ColorStateList.valueOf(ContextCompat.getColor(activity!!, R.color.primary))
+                        ColorStateList.valueOf(
+                            MaterialColors.getColor(
+                                activity!!,
+                                R.attr.colorPrimary,
+                                ContextCompat.getColor(activity!!, R.color.primary)
+                            )
+                        )
                 }
                 temp = s.toString()
             }
@@ -269,6 +280,31 @@ class TopicFragment : BaseFragment() {
 
         binding.swipeDetails.isRefreshing = true
         getRepliesPageOne(false)
+    }
+
+    private fun applyWindowInsets() {
+        val root = binding.root
+        val appBar = binding.appbarDetails
+        val foot = binding.footContainer
+        val appBarPadding = Padding(appBar.paddingLeft, appBar.paddingTop, appBar.paddingRight, appBar.paddingBottom)
+        val footPadding = Padding(foot.paddingLeft, foot.paddingTop, foot.paddingRight, foot.paddingBottom)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            appBar.setPadding(
+                appBarPadding.left,
+                appBarPadding.top + systemBars.top,
+                appBarPadding.right,
+                appBarPadding.bottom
+            )
+            foot.setPadding(
+                footPadding.left,
+                footPadding.top,
+                footPadding.right,
+                footPadding.bottom + systemBars.bottom
+            )
+            insets
+        }
     }
 
 
@@ -592,3 +628,5 @@ class TopicFragment : BaseFragment() {
 
     }
 }
+
+private data class Padding(val left: Int, val top: Int, val right: Int, val bottom: Int)

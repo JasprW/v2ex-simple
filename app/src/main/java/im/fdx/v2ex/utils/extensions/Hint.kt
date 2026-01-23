@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.elvishew.xlog.XLog
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import im.fdx.v2ex.R
 import im.fdx.v2ex.ui.LoginActivity
@@ -91,8 +92,20 @@ fun Activity.showLoginHint(view: View, message: String = getString(R.string.not_
     val color = typedValue.data
     Snackbar.make(view, message, Snackbar.LENGTH_LONG)
         .setBackgroundTint(color)
-        .setTextColor(ContextCompat.getColor(this, R.color.title_text))
-        .setActionTextColor(ContextCompat.getColor(this, R.color.primary))
+        .setTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorOnSurface,
+                ContextCompat.getColor(this, R.color.title_text)
+            )
+        )
+        .setActionTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorPrimary,
+                ContextCompat.getColor(this, R.color.primary)
+            )
+        )
         .setAction(getString(R.string.login)) {
             startActivity<LoginActivity>()
         }.show()
@@ -110,8 +123,20 @@ fun Activity.showHint(view: View, message: String, length: Int = Snackbar.LENGTH
     val color = typedValue.data
     Snackbar.make(view, message, length)
         .setBackgroundTint(color)
-        .setTextColor(ContextCompat.getColor(this, R.color.title_text))
-        .setActionTextColor(ContextCompat.getColor(this, R.color.primary))
+        .setTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorOnSurface,
+                ContextCompat.getColor(this, R.color.title_text)
+            )
+        )
+        .setActionTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorPrimary,
+                ContextCompat.getColor(this, R.color.primary)
+            )
+        )
         .setAction(R.string.ok){}
         .show()
 }

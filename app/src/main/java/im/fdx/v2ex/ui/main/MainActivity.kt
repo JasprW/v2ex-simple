@@ -218,6 +218,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding = ActivityMainNavDrawerBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        applyEdgeToEdge(binding.activityMainContent.coordinator, binding.activityMainContent.appbarMain)
         setSupportActionBar(binding.activityMainContent.toolbar)
 
         val intentFilter = IntentFilter().apply {
@@ -631,4 +632,3 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private val isOpenMessage by lazy { pref.getBoolean("pref_msg", true) }
 }
-
