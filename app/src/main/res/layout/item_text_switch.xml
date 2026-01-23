@@ -23,7 +23,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:includeFontPadding="false"
-            android:textColor="@color/title_text"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="?text_medium"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ivDelete"
@@ -44,7 +44,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/title_text" />
+            app:tint="?attr/colorOnSurface" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

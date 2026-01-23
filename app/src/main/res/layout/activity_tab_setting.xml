@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="@string/show_area"
-            android:textColor="@color/title_text"
+            android:textColor="?attr/colorOnSurface"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="@string/hide_area"
-            android:textColor="@color/title_text"
+            android:textColor="?attr/colorOnSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent" />

@@ -11,5 +11,5 @@
     android:singleLine="true"
     android:paddingStart="16dp"
     tools:text="first"
-    android:textColor="@color/content_font_color"
+    android:textColor="?attr/colorOnSurface"
     app:drawableEndCompat="@drawable/baseline_arrow_drop_down_24" />

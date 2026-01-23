@@ -74,6 +74,7 @@ class MemberActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMemberBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root, binding.alProfile)
         run {
             binding.tvTagline.visibility = View.GONE
             binding.tvIntro.visibility = View.GONE

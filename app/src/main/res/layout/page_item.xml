@@ -20,7 +20,7 @@
         android:autoSizeTextType="uniform"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/hint"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:foreground="?selectableItemBackground"
         android:background="@drawable/border_page_num"
         tools:ignore="UnusedAttribute" />

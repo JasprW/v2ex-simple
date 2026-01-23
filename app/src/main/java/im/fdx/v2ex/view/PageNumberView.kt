@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
 import im.fdx.v2ex.myApp
 import kotlin.math.min
@@ -182,10 +183,20 @@ class TheAdapter(val size: Int) : RecyclerView.Adapter<TheViewHolder>() {
         }
         holder.tv.text = showDatas[position]
         holder.tv.isSelected = currentNum.toString() == holder.tv.text.toString()
+        val primaryColor = MaterialColors.getColor(
+            ctx!!,
+            R.attr.colorPrimary,
+            ContextCompat.getColor(ctx, R.color.primary)
+        )
+        val hintColor = MaterialColors.getColor(
+            ctx,
+            R.attr.colorOnSurfaceVariant,
+            ContextCompat.getColor(ctx, R.color.hint)
+        )
         if (holder.tv.isSelected) {
-            holder.tv.setTextColor(ContextCompat.getColor(ctx!!, R.color.main_color))
+            holder.tv.setTextColor(primaryColor)
         } else {
-            holder.tv.setTextColor(ContextCompat.getColor(ctx!!, R.color.hint))
+            holder.tv.setTextColor(hintColor)
         }
         holder.tv.isEnabled = "..." != holder.tv.text.toString()
     }
@@ -238,10 +249,20 @@ class SimpleAdapter() : RecyclerView.Adapter<TheViewHolder>() {
         }
         holder.tv.text = (position + 1).toString()
         holder.tv.isSelected = currentNum.toString() == holder.tv.text.toString()
+        val primaryColor = MaterialColors.getColor(
+            myApp,
+            R.attr.colorPrimary,
+            ContextCompat.getColor(myApp, R.color.primary)
+        )
+        val hintColor = MaterialColors.getColor(
+            myApp,
+            R.attr.colorOnSurfaceVariant,
+            ContextCompat.getColor(myApp, R.color.hint)
+        )
         if (holder.tv.isSelected) {
-            holder.tv.setTextColor(ContextCompat.getColor(myApp, R.color.primary))
+            holder.tv.setTextColor(primaryColor)
         } else {
-            holder.tv.setTextColor(ContextCompat.getColor(myApp, R.color.hint))
+            holder.tv.setTextColor(hintColor)
         }
         holder.tv.isEnabled = "..." != holder.tv.text.toString()
     }
@@ -257,4 +278,3 @@ class SimpleAdapter() : RecyclerView.Adapter<TheViewHolder>() {
 
 
 }
-

@@ -3,9 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:fitsSystemWindows="true"
+    android:background="?item_bg_color"
     tools:context="im.fdx.v2ex.ui.SettingsActivity">
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_settings"
         android:layout_width="match_parent"
         android:elevation="4dp"
         android:layout_height="wrap_content">

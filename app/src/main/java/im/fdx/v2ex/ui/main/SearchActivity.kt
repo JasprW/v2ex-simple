@@ -23,8 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.esafirm.imagepicker.features.ImagePicker
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
-import im.fdx.v2ex.databinding.ActivityMemberBinding
 import im.fdx.v2ex.databinding.ActivitySearchResultBinding
 import im.fdx.v2ex.network.Api
 import im.fdx.v2ex.pref
@@ -51,6 +51,7 @@ class SearchActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root, binding.appbar.root)
         setUpToolbar(getString(R.string.search))
 
 
@@ -191,8 +192,20 @@ class SearchActivity : BaseActivity() {
         val searchView = item.actionView as SearchView
         searchView.isSubmitButtonEnabled = true
         val et = searchView.findViewById<EditText>(R.id.search_src_text)
-        et.setTextColor(ContextCompat.getColor(this, R.color.toolbar_text))
-        et.setHintTextColor(ContextCompat.getColor(this, R.color.hint))
+        et.setTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorOnSurface,
+                ContextCompat.getColor(this, R.color.toolbar_text)
+            )
+        )
+        et.setHintTextColor(
+            MaterialColors.getColor(
+                this,
+                R.attr.colorOnSurfaceVariant,
+                ContextCompat.getColor(this, R.color.hint)
+            )
+        )
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         return true
     }
@@ -213,4 +226,3 @@ class SearchActivity : BaseActivity() {
         }
     }
 }
-

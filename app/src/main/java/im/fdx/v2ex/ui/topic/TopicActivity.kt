@@ -7,12 +7,12 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import im.fdx.v2ex.R
 import im.fdx.v2ex.databinding.ActivityDetailsBinding
 import im.fdx.v2ex.pref
 import im.fdx.v2ex.ui.BaseActivity
 import im.fdx.v2ex.ui.main.Topic
 import im.fdx.v2ex.utils.Keys
-import im.fdx.v2ex.utils.extensions.setStatusBarColorInt
 import im.fdx.v2ex.view.ViewPagerHelper
 import im.fdx.v2ex.view.ZoomOutPageTransform
 import im.fdx.v2ex.utils.extensions.toast
@@ -39,10 +39,11 @@ class TopicActivity : BaseActivity() {
     val view = binding.root
     setContentView(view)
 
+    applyEdgeToEdge(binding.root)
+
     vpAdapter = VpAdapter(this)
     parseIntent(intent)
   }
-
 
   private fun parseIntent(intent: Intent) {
     val data = intent.data

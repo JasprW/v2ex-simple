@@ -15,8 +15,8 @@
         android:theme="@style/Theme.V2ex"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
-        android:enableOnBackInvokedCallback="false"
-        tools:targetApi="m">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="33">
         <activity
             android:name=".ui.main.MainActivity"
             android:label="@string/app_simple_name"

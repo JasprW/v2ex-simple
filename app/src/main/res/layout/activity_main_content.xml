@@ -5,14 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/coordinator"
+    android:background="?item_bg_color"
     >
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
         android:background="?toolbar_background"
-        android:fitsSystemWindows="true"
         android:elevation="4dp"
         tools:ignore="UnusedAttribute">
 
@@ -51,7 +52,7 @@
         android:contentDescription="add topic"
         android:scaleType="fitXY"
         android:src="@drawable/ic_edit_white_24dp"
-        app:backgroundTint="@color/fab"
+        app:backgroundTint="?attr/colorSecondaryContainer"
         app:elevation="8dp"
         app:fabSize="normal"
         tools:ignore="ImageContrastCheck" />

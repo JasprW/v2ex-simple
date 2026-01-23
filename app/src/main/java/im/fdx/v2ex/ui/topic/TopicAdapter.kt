@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.res.ColorStateList
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -20,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import im.fdx.v2ex.MyApp
 import im.fdx.v2ex.R
@@ -183,7 +185,13 @@ class TopicAdapter(
 
                 if (replyItem.isThanked) {
                     itemVH.binding.ivThanks.imageTintList =
-                        ContextCompat.getColorStateList(act, R.color.primary)
+                        ColorStateList.valueOf(
+                            MaterialColors.getColor(
+                                act,
+                                R.attr.colorPrimary,
+                                ContextCompat.getColor(act, R.color.primary)
+                            )
+                        )
                     itemVH.binding.ivThanks.isClickable = false
                     itemVH.binding.tvThanks.isClickable = false
                 } else {
@@ -372,8 +380,14 @@ class TopicAdapter(
                                 act.toast("感谢成功")
                                 replyItem.thanks = replyItem.thanks + 1
                                 itemVH.binding.tvThanks.text = (replyItem.thanks).toString()
-                                itemVH.binding.ivThanks.imageTintList =
-                                    ContextCompat.getColorStateList(act, R.color.primary)
+                                    itemVH.binding.ivThanks.imageTintList =
+                                        ColorStateList.valueOf(
+                                            MaterialColors.getColor(
+                                                act,
+                                                R.attr.colorPrimary,
+                                                ContextCompat.getColor(act, R.color.primary)
+                                            )
+                                        )
                                 itemVH.binding.ivThanks.isClickable = false
                             }
                         }
@@ -400,7 +414,13 @@ class TopicAdapter(
                 if (pref.getBoolean("pref_add_row", false)) "#${replyItem.getRowNum(position)} " else ""
         if (!editText.text.toString().contains(text)) {
             val spanString = SpannableString(text)
-            val span = ForegroundColorSpan(ContextCompat.getColor(act, R.color.primary))
+            val span = ForegroundColorSpan(
+                MaterialColors.getColor(
+                    act,
+                    R.attr.colorPrimary,
+                    ContextCompat.getColor(act, R.color.primary)
+                )
+            )
             spanString.setSpan(span, 0, text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             editText.append(spanString)
         }

@@ -49,9 +49,14 @@ android {
                 val properties = Properties().apply {
                     load(propertiesFile.inputStream())
                 }
+                val storeFilePath = properties.getProperty("storeFile")
+                if (storeFilePath.isNullOrBlank()) {
+                    println("Warning: storeFile missing in local.properties. Release builds may fail.")
+                    return@create
+                }
                 keyAlias = properties.getProperty("keyAlias")
                 keyPassword = properties.getProperty("keyPassword")
-                storeFile = file(properties.getProperty("storeFile")) // 'file()' 会自动解析相对路径
+                storeFile = file(storeFilePath) // 'file()' 会自动解析相对路径
                 storePassword = properties.getProperty("storePassword")
             } else {
                 // 当文件不存在时，可以打印警告或让构建失败，避免后续出现 Null-Pointer 异常

@@ -31,6 +31,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.elvishew.xlog.XLog
 import com.esafirm.imagepicker.features.ImagePicker
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
 import im.fdx.v2ex.pref
 import im.fdx.v2ex.utils.Keys
@@ -56,7 +57,13 @@ fun FrameLayout.showNoContent(content: String = "没有内容") {
         val child = TextView(this.context)
         child.tag = tagName
         child.text = content
-        child.setTextColor(ContextCompat.getColor(context, R.color.hint))
+        child.setTextColor(
+            MaterialColors.getColor(
+                context,
+                R.attr.colorOnSurfaceVariant,
+                ContextCompat.getColor(context, R.color.hint)
+            )
+        )
         val params = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         params.gravity = Gravity.CENTER_HORIZONTAL
         params.topMargin = 120.dp2px()
@@ -82,6 +89,8 @@ fun AppCompatActivity.setUpToolbar(title: String? = ""): Toolbar {
     toolbar.title = title
     setSupportActionBar(toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    val navColor = MaterialColors.getColor(toolbar, R.attr.colorPrimary)
+    toolbar.navigationIcon?.setTint(navColor)
     toolbar.setNavigationOnClickListener { onBackPressed() }
     return toolbar
 }
@@ -120,7 +129,12 @@ private fun calculateStatusColor(@ColorInt color: Int, alpha: Int): Int {
 }
 
 fun SwipeRefreshLayout.initTheme() {
-    setColorSchemeResources(R.color.accent_orange)
+    val primaryColor = MaterialColors.getColor(
+        context,
+        R.attr.colorPrimary,
+        ContextCompat.getColor(context, R.color.primary)
+    )
+    setColorSchemeColors(primaryColor)
 //    val typedValue = TypedValue()
 //    context.theme.resolveAttribute(R.attr.bg_refresh, typedValue, true)
 //    val color = typedValue.data

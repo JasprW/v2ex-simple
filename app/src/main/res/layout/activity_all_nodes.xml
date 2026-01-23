@@ -7,10 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:fitsSystemWindows="true"
+    android:background="?item_bg_color"
     tools:context="im.fdx.v2ex.ui.node.AllNodesActivity">
 
-    <include layout="@layout/appbar" />
+    <include
+        android:id="@+id/appbar"
+        layout="@layout/appbar" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"

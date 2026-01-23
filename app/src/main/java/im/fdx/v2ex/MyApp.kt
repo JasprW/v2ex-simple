@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.color.DynamicColors
 import com.elvishew.xlog.LogLevel
 import com.elvishew.xlog.XLog
 import im.fdx.v2ex.network.HttpHelper
@@ -46,6 +47,7 @@ class MyApp : Application() {
   override fun onCreate() {
     super.onCreate()
     INSTANCE = this
+    DynamicColors.applyToActivitiesIfAvailable(this)
     XLog.init(when {
       BuildConfig.DEBUG -> LogLevel.ALL
       else -> LogLevel.NONE
