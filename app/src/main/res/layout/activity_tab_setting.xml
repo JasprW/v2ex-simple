@@ -18,31 +18,21 @@
         <include layout="@layout/appbar" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardShow"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardElevation="0dp"
             app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp"
-            app:layout_constraintBottom_toTopOf="@+id/cardTips"
-            app:layout_constraintEnd_toStartOf="@+id/guideline_center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -61,9 +51,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvLeft"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_weight="1"
                     android:clipToPadding="false"
                     android:paddingBottom="8dp"
                     android:paddingTop="4dp" />
@@ -73,17 +62,13 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardHide"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardElevation="0dp"
             app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp"
-            app:layout_constraintBottom_toTopOf="@+id/cardTips"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/guideline_center"
-            app:layout_constraintTop_toTopOf="parent">
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -102,9 +87,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvRight"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_weight="1"
                     android:clipToPadding="false"
                     android:paddingBottom="8dp"
                     android:paddingTop="4dp" />
@@ -114,17 +98,12 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardTips"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardElevation="0dp"
             app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardShow">
+            app:strokeWidth="1dp">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/textView"
@@ -138,6 +117,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </LinearLayout>
