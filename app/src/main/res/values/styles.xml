@@ -124,10 +124,9 @@
         <item name="tabTextColor">?attr/colorOnSurfaceVariant</item>
         <item name="tabIndicatorColor">?attr/colorPrimary</item>
         <item name="tabBackground">?toolbar_background</item>
-        <item name="tabMinWidth">64dp</item>
-        <item name="tabMaxWidth">72dp</item>
-        <item name="tabPaddingStart">4dp</item>
-        <item name="tabPaddingEnd">4dp</item>
+        <item name="tabMinWidth">0dp</item>
+        <item name="tabPaddingStart">10dp</item>
+        <item name="tabPaddingEnd">10dp</item>
         <item name="tabMode">scrollable</item>
         <item name="android:layout_height">36sp</item>
         <item name="android:layout_width">match_parent</item>
