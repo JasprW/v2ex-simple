@@ -3,13 +3,12 @@ package im.fdx.v2ex.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
 import com.google.errorprone.annotations.Keep
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -247,13 +246,13 @@ class DefaultAdapter(val list: MutableList<MyTab>, val type: Status = STATUS_SHO
     }
 
     override fun onBindViewHolder(vh: VH, position: Int) {
-        vh.tv.text = list[vh.bindingAdapterPosition].title
+        vh.chip.text = list[vh.bindingAdapterPosition].title
         if (type == STATUS_SHOW) {
-            vh.ivDelete.setImageResource(R.drawable.ic_baseline_remove_circle_outline_24)
+            vh.chip.setCloseIconResource(R.drawable.ic_baseline_remove_circle_outline_24)
         } else {
-            vh.ivDelete.setImageResource(R.drawable.ic_baseline_add_circle_outline_24)
+            vh.chip.setCloseIconResource(R.drawable.ic_baseline_add_circle_outline_24)
         }
-        vh.ivDelete.setOnClickListener {
+        vh.chip.setOnCloseIconClickListener {
             if (vh.bindingAdapterPosition != -1) {
                 listener?.invoke(vh.bindingAdapterPosition, list[vh.bindingAdapterPosition])
             }
@@ -261,8 +260,7 @@ class DefaultAdapter(val list: MutableList<MyTab>, val type: Status = STATUS_SHO
     }
 
     class VH(containerView: View) : RecyclerView.ViewHolder(containerView) {
-        val tv = containerView.findViewById<TextView>(R.id.tv)
-        val ivDelete = containerView.findViewById<ImageView>(R.id.ivDelete)
+        val chip = containerView.findViewById<Chip>(R.id.tabChip)
     }
 
 }
