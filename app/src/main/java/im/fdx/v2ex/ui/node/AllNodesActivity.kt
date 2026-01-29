@@ -43,7 +43,7 @@ class AllNodesActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAllNodesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        applyEdgeToEdge(binding.root, binding.appbar.root)
+        applyEdgeToEdge(binding.root, binding.appbar.root, binding.rvNode)
 
         setUpToolbar(getString(R.string.all_nodes))
         //这里是后续不卡的关键，但是第一次滑动还是卡

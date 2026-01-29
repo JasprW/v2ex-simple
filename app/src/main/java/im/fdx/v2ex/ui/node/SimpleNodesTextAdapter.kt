@@ -3,15 +3,15 @@ package im.fdx.v2ex.ui.node
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import com.google.android.material.chip.Chip
 import im.fdx.v2ex.R
 
 class SimpleNodesTextAdapter(private var mNodes: MutableList<Node>, private val action: (Node) -> Unit)
   : androidx.recyclerview.widget.RecyclerView.Adapter<SimpleNodesTextAdapter.SimpleVH>() {
 
     override fun onBindViewHolder(holder: SimpleVH, position: Int) {
-        holder.tvTitle.text = mNodes[position].title
-        holder.tvTitle.setOnClickListener {
+        holder.chip.text = mNodes[position].title
+        holder.chip.setOnClickListener {
             action(mNodes[position])
         }
     }
@@ -22,6 +22,6 @@ class SimpleNodesTextAdapter(private var mNodes: MutableList<Node>, private val 
     override fun getItemCount() = mNodes.size
 
   inner class SimpleVH(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
-        val tvTitle = itemView as TextView
+        val chip = itemView as Chip
     }
 }

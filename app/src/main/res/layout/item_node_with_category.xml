@@ -8,14 +8,14 @@
     <TextView
         android:id="@+id/tv_node_category"
         android:layout_width="match_parent"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:paddingStart="8dp"
-        style="@style/VText.ToolbarStyle"
-        android:paddingEnd="8dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="6dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorOnSurface"
+        android:textAllCaps="true"
         tools:text="混沌世界:"/>
 
     <androidx.recyclerview.widget.RecyclerView
