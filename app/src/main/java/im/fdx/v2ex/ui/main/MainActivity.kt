@@ -8,6 +8,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
+import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
@@ -34,6 +35,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -194,17 +196,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             binding.activityMainContent.slidingTabs,
             binding.activityMainContent.viewpagerMain
         ) { tab, position ->
-
-            if (position < mAdapter.myTabList.size) {
-                tab.text = mAdapter.myTabList[position].title
-            } else {
-                tab.text = " + "
-                tab.view.setOnClickListener {
-                    if(tab.text.toString() == " + ") {
-                        startActivity(Intent(this, TabSettingActivity::class.java))
-                    }
-                }
-            }
+            tab.text = mAdapter.myTabList[position].title
         }.attach()
 
     }
@@ -219,6 +211,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val view = binding.root
         setContentView(view)
         applyEdgeToEdge(binding.activityMainContent.coordinator, binding.activityMainContent.appbarMain)
+        window.statusBarColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
         setSupportActionBar(binding.activityMainContent.toolbar)
 
         val intentFilter = IntentFilter().apply {
@@ -296,6 +289,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding.navSetting.setOnClickListener(listener)
 
 
+        binding.activityMainContent.btnTabAdd.setOnClickListener {
+            startActivity(Intent(this, TabSettingActivity::class.java))
+        }
+
+
 
         binding.ivNightMode.setOnClickListener {
             BottomSheetMenu(this)
@@ -362,15 +360,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             binding.activityMainContent.slidingTabs,
             binding.activityMainContent.viewpagerMain
         ) { tab, position ->
-
-            if (position < mAdapter.myTabList.size) {
-                tab.text = mAdapter.myTabList[position].title
-            } else {
-                tab.text = " + "
-                tab.view.setOnClickListener {
-                    startActivity(Intent(this, TabSettingActivity::class.java))
-                }
-            }
+            tab.text = mAdapter.myTabList[position].title
         }.attach()
 
         binding.activityMainContent.slidingTabs.addOnTabSelectedListener(object :

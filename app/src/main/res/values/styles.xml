@@ -123,7 +123,7 @@
         <item name="tabSelectedTextColor">?attr/colorPrimary</item>
         <item name="tabTextColor">?attr/colorOnSurfaceVariant</item>
         <item name="tabIndicatorColor">?attr/colorPrimary</item>
-        <item name="tabBackground">?toolbar_background</item>
+        <item name="tabBackground">?attr/colorSurface</item>
         <item name="tabMinWidth">0dp</item>
         <item name="tabPaddingStart">10dp</item>
         <item name="tabPaddingEnd">10dp</item>

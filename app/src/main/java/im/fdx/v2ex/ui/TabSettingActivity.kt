@@ -6,8 +6,10 @@ import android.view.*
 import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.google.android.material.chip.Chip
 import com.google.errorprone.annotations.Keep
 import com.google.gson.Gson
@@ -68,8 +70,12 @@ class TabSettingActivity : BaseActivity() {
     private fun initAdapter() {
         val rvLeft = findViewById<RecyclerView>(R.id.rvLeft)
         val rvRight = findViewById<RecyclerView>(R.id.rvRight)
-        rvLeft.layoutManager = LinearLayoutManager(this)
-        rvRight.layoutManager = LinearLayoutManager(this)
+        rvLeft.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW).apply {
+            justifyContent = JustifyContent.FLEX_START
+        }
+        rvRight.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW).apply {
+            justifyContent = JustifyContent.FLEX_START
+        }
         val str = pref.getString(PREF_TAB, null)
         val turnsType = object : TypeToken<List<MyTab>>() {}.type
         val savedList = Gson().fromJson<List<MyTab>>(str, turnsType)

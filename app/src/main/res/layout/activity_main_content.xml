@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/coordinator"
-    android:background="?item_bg_color"
+    android:background="?attr/colorSurface"
     >
 
     <com.google.android.material.appbar.AppBarLayout
@@ -13,23 +13,51 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
-        android:background="?toolbar_background"
+        android:background="?attr/colorSurface"
         android:elevation="4dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        app:liftOnScroll="false"
+        app:statusBarForeground="?attr/colorSurface"
+        android:stateListAnimator="@null"
         tools:ignore="UnusedAttribute">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?toolbar_background"
+            android:background="?attr/colorSurface"
             app:titleTextAppearance="@style/VText.ToolbarStyle"
             android:contentDescription="@string/title"
             app:contentInsetStartWithNavigation="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/sliding_tabs"
-            style="@style/VTabLayout"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/colorSurface">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/sliding_tabs"
+                style="@style/VTabLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_tab_add"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/tab_setting"
+                app:icon="@drawable/ic_add_white_24dp"
+                app:iconTint="?attr/colorOnSurface"
+                app:backgroundTint="@android:color/transparent" />
+
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
