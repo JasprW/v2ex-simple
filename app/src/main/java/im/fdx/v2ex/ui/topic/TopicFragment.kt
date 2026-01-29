@@ -29,6 +29,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import im.fdx.v2ex.MyApp
 import im.fdx.v2ex.R
 import im.fdx.v2ex.database.DbHelper
+import kotlin.math.max
 import im.fdx.v2ex.databinding.ActivityDetailsContentBinding
 import im.fdx.v2ex.myApp
 import im.fdx.v2ex.network.*
@@ -123,7 +124,7 @@ class TopicFragment : BaseFragment() {
 
         binding.toolbar.run {
             inflateMenu(R.menu.menu_details)
-            setNavigationIcon(R.drawable.ic_arrow_back_primary_24dp)
+            setNavigationIcon(R.drawable.ef_ic_arrow_back)
             navigationIcon?.setTint(MaterialColors.getColor(this, R.attr.colorPrimary))
             setNavigationOnClickListener {
                 activity?.finish()
@@ -241,7 +242,7 @@ class TopicFragment : BaseFragment() {
             }
         }
 
-        (binding.flReply).setOnClickListener {
+        binding.ivSend.setOnClickListener {
             postReply()
         }
 
@@ -250,24 +251,12 @@ class TopicFragment : BaseFragment() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable) {
-                if (s.isEmpty()) {
-                    binding.flReply.isClickable = false
-                    binding.ivSend.imageTintList = null
-                } else {
-                    binding.flReply.isClickable = true
-                    binding.ivSend.imageTintList =
-                        ColorStateList.valueOf(
-                            MaterialColors.getColor(
-                                activity!!,
-                                R.attr.colorPrimary,
-                                ContextCompat.getColor(activity!!, R.color.primary)
-                            )
-                        )
-                }
+                updateSendState(s)
                 temp = s.toString()
             }
 
         })
+        updateSendState(binding.etPostReply.text)
         val models: Topic? = arguments?.get(Keys.KEY_TOPIC_MODEL) as Topic?
         models?.let {
             mAdapter.initTopic(it)
@@ -291,6 +280,8 @@ class TopicFragment : BaseFragment() {
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val bottomInset = max(systemBars.bottom, imeInsets.bottom)
             appBar.setPadding(
                 appBarPadding.left,
                 appBarPadding.top + systemBars.top,
@@ -301,7 +292,7 @@ class TopicFragment : BaseFragment() {
                 footPadding.left,
                 footPadding.top,
                 footPadding.right,
-                footPadding.bottom + systemBars.bottom
+                footPadding.bottom + bottomInset
             )
             insets
         }
@@ -322,6 +313,23 @@ class TopicFragment : BaseFragment() {
 
     private fun setFootView() {
         binding.footContainer.isVisible = myApp.isLogin
+    }
+
+    private fun updateSendState(text: CharSequence?) {
+        val isEmpty = text.isNullOrEmpty()
+        binding.ivSend.isEnabled = !isEmpty
+        val backgroundColor = if (isEmpty) {
+            MaterialColors.getColor(binding.ivSend, R.attr.colorSurfaceVariant)
+        } else {
+            MaterialColors.getColor(binding.ivSend, R.attr.colorPrimary)
+        }
+        val iconColor = if (isEmpty) {
+            MaterialColors.getColor(binding.ivSend, R.attr.colorOnSurfaceVariant)
+        } else {
+            MaterialColors.getColor(binding.ivSend, R.attr.colorOnPrimary)
+        }
+        binding.ivSend.backgroundTintList = ColorStateList.valueOf(backgroundColor)
+        binding.ivSend.imageTintList = ColorStateList.valueOf(iconColor)
     }
 
 
