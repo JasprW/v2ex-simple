@@ -9,6 +9,24 @@ how to build, test, and follow existing style conventions.
 - Main module: `app/` with source sets `main`, `debug`, `testDebug`.
 - Additional module: `searchablespinnerlibrary/`.
 
+## Activities
+- `im.fdx.v2ex.ui.BaseActivity` - shared base for theming/font scaling + edge-to-edge insets.
+- `im.fdx.v2ex.ui.main.MainActivity` - main nav drawer + tabbed feed.
+- `im.fdx.v2ex.ui.main.SearchActivity` - search UI with filters and results.
+- `im.fdx.v2ex.ui.main.NewTopicActivity` - create a new topic, pick node, upload images.
+- `im.fdx.v2ex.ui.node.AllNodesActivity` - list/search all nodes, choose node for other flows.
+- `im.fdx.v2ex.ui.node.NodeActivity` - node detail screen with topics list.
+- `im.fdx.v2ex.ui.topic.TopicActivity` - topic detail container with ViewPager swiping.
+- `im.fdx.v2ex.ui.NotificationActivity` - notifications list with unread count.
+- `im.fdx.v2ex.ui.LoginActivity` - login flow with captcha and 2FA.
+- `im.fdx.v2ex.ui.SettingsActivity` - preference screen and app settings.
+- `im.fdx.v2ex.ui.member.MemberActivity` - user profile with tabs and actions.
+- `im.fdx.v2ex.ui.favor.FavorActivity` - favorites screen with tabbed ViewPager.
+- `im.fdx.v2ex.ui.TabSettingActivity` - manage home tabs list/order.
+- `im.fdx.v2ex.ui.WebViewActivity` - in-app WebView for URLs/login flows.
+- `im.fdx.v2ex.ui.PhotoActivity` - full-screen photo viewer with share/save.
+- `im.fdx.v2ex.ui.TestActivity` - test screen.
+
 ## Build, Lint, and Test
 Use the Gradle wrapper from repo root.
 
