@@ -35,6 +35,7 @@ import im.fdx.v2ex.ui.member.MemberActivity
 import im.fdx.v2ex.ui.node.NodeActivity
 import im.fdx.v2ex.utils.Keys
 import im.fdx.v2ex.utils.Keys.reportReasons
+import im.fdx.v2ex.utils.TimeUtil
 import im.fdx.v2ex.utils.extensions.findRownum
 import im.fdx.v2ex.utils.extensions.load
 import im.fdx.v2ex.utils.extensions.logd
@@ -447,7 +448,8 @@ class TopicAdapter(
         this.replies.forEachIndexed { index, it ->
             it.isLouzu = it.member?.username == topics[0].member?.username
 //            logd("isLouzu, ${it.isLouzu}, '${it.member?.username}', '${topics[0].member?.username}'")
-            it.showTime = it.createdOriginal
+            val replyTime = TimeUtil.getReplyTime(it.created)
+            it.showTime = if (replyTime.isNotEmpty()) replyTime else it.createdOriginal
         }
         notifyDataSetChanged()
     }
@@ -456,7 +458,8 @@ class TopicAdapter(
         this.replies.addAll(replies)
         this.replies.forEachIndexed { index, it ->
             it.isLouzu = it.member?.username == topics[0].member?.username
-            it.showTime = it.createdOriginal
+            val replyTime = TimeUtil.getReplyTime(it.created)
+            it.showTime = if (replyTime.isNotEmpty()) replyTime else it.createdOriginal
         }
         notifyDataSetChanged()
     }

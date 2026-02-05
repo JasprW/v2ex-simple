@@ -12,7 +12,7 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@string/it_is_avatar"
         android:src="@drawable/ic_profile"
         app:civ_border_color="@color/transparent"
@@ -25,10 +25,11 @@
         style="@style/VText.ContentStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:paddingBottom="8dp"
+        android:paddingBottom="16dp"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tv_replier"
+        app:layout_constraintStart_toStartOf="@+id/tv_reply_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_reply_avatar"
         tools:text="@string/content"
@@ -40,8 +41,8 @@
         android:textSize="?text_small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        app:layout_constraintStart_toEndOf="@+id/iv_reply_avatar"
+        android:layout_marginStart="6dp"
+        app:layout_constraintStart_toEndOf="@+id/tv_reply_sep"
         app:layout_constraintTop_toTopOf="@+id/iv_reply_avatar"
         app:layout_constraintVertical_bias="0.444"
         tools:text="aa11123131317" />
@@ -51,17 +52,9 @@
         style="@style/VText.Hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tv_replier"
-        android:layout_alignTop="@+id/iv_reply_avatar"
-        android:layout_marginEnd="16dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:gravity="end"
         android:text="@string/reply_time"
-        app:layout_constraintEnd_toStartOf="@+id/flThanks"
-        app:layout_constraintTop_toTopOf="@+id/tv_replier"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_replier"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintStart_toStartOf="@id/tv_reply_row"
+        app:layout_constraintTop_toBottomOf="@+id/tv_replier"
         tools:text="12小时15分钟前" />
 
     <TextView
@@ -69,12 +62,23 @@
         style="@style/VText.Hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:maxLines="1"
         android:text="@string/row"
-        app:layout_constraintStart_toStartOf="@id/tv_replier"
-        app:layout_constraintTop_toBottomOf="@id/tv_replier"
+        app:layout_constraintStart_toEndOf="@+id/iv_reply_avatar"
+        app:layout_constraintTop_toTopOf="@+id/iv_reply_avatar"
         tools:targetApi="o"
         tools:text="#8888" />
+
+    <TextView
+        android:id="@+id/tv_reply_sep"
+        style="@style/VText.Hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:text="·"
+        app:layout_constraintStart_toEndOf="@+id/tv_reply_row"
+        app:layout_constraintTop_toTopOf="@+id/tv_reply_row" />
 
 
     <LinearLayout
@@ -180,5 +184,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="tv_reply_row,tv_reply_content" />
+        app:constraint_referenced_ids="tv_reply_time,tv_reply_content" />
 </androidx.constraintlayout.widget.ConstraintLayout>

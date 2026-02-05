@@ -132,6 +132,26 @@
         <item name="android:layout_width">match_parent</item>
     </style>
 
+    <style name="Widget.V2ex.Chip.TabBase" parent="Widget.Material3.Chip.Assist">
+        <item name="chipMinHeight">32dp</item>
+        <item name="chipCornerRadius">16dp</item>
+        <item name="chipStartPadding">12dp</item>
+        <item name="chipEndPadding">12dp</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStrokeColor">?attr/colorOutline</item>
+        <item name="android:textSize">?text_small</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Widget.V2ex.Button.TabAdd" parent="Widget.Material3.Button.IconButton">
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="iconPadding">0dp</item>
+        <item name="android:minWidth">32dp</item>
+        <item name="android:minHeight">32dp</item>
+    </style>
+
     <style name="AppTheme.Light.Dialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">?attr/colorPrimary</item>
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>

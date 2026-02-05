@@ -39,8 +39,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import de.hdodenhof.circleimageview.CircleImageView
@@ -75,6 +75,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private var helper: ViewPagerHelper? = null
     private lateinit var mAdapter: MyViewPagerAdapter
+    private var chipTabAdapter: ChipTabAdapter? = null
+    private var tabPageCallback: ViewPager2.OnPageChangeCallback? = null
     private val shortcutId = "create_topic"
     private var shortcutManager: ShortcutManager? = null
     private val shortcutIds = listOf("create_topic")
@@ -194,12 +196,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     fun reloadTab() {
         mAdapter = MyViewPagerAdapter(this@MainActivity)
         binding.activityMainContent.viewpagerMain.adapter = mAdapter
-        TabLayoutMediator(
-            binding.activityMainContent.slidingTabs,
-            binding.activityMainContent.viewpagerMain
-        ) { tab, position ->
-            tab.text = mAdapter.myTabList[position].title
-        }.attach()
+        setupChipTabs()
 
     }
 
@@ -306,7 +303,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding.navSetting.setOnClickListener(listener)
 
 
-        binding.activityMainContent.btnTabAdd.setOnClickListener {
+        binding.activityMainContent.chipTabAdd.setOnClickListener {
             startActivity(Intent(this, TabSettingActivity::class.java))
         }
 
@@ -360,21 +357,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding.activityMainContent.viewpagerMain.adapter = mAdapter
 
         helper = ViewPagerHelper(binding.activityMainContent.viewpagerMain)
-        TabLayoutMediator(
-            binding.activityMainContent.slidingTabs,
-            binding.activityMainContent.viewpagerMain
-        ) { tab, position ->
-            tab.text = mAdapter.myTabList[position].title
-        }.attach()
-
-        binding.activityMainContent.slidingTabs.addOnTabSelectedListener(object :
-            TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {}
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-
-            override fun onTabReselected(tab: TabLayout.Tab) {
-            }
-        })
+        setupChipTabs()
 
         if (myApp.isLogin && isOpenMessage) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -384,6 +367,31 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
         }
         Firebase.remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
+    }
+
+    private fun setupChipTabs() {
+        val tabs = mAdapter.myTabList
+        val recyclerView = binding.activityMainContent.rvMainTabs
+        val currentIndex = binding.activityMainContent.viewpagerMain.currentItem
+
+        if (recyclerView.layoutManager == null) {
+            recyclerView.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        chipTabAdapter = ChipTabAdapter(tabs, currentIndex) { index ->
+            binding.activityMainContent.viewpagerMain.setCurrentItem(index, true)
+        }
+        recyclerView.adapter = chipTabAdapter
+
+        tabPageCallback?.let { binding.activityMainContent.viewpagerMain.unregisterOnPageChangeCallback(it) }
+        tabPageCallback = object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                chipTabAdapter?.updateSelected(position)
+                recyclerView.smoothScrollToPosition(position)
+            }
+        }
+        binding.activityMainContent.viewpagerMain.registerOnPageChangeCallback(tabPageCallback!!)
     }
 
     private fun updateUserInBackground() {
