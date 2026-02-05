@@ -39,23 +39,24 @@
             android:gravity="center_vertical"
             android:background="?attr/colorSurface">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/sliding_tabs"
-                style="@style/VTabLayout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_main_tabs"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:overScrollMode="never"
+                android:clipToPadding="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_tab_add"
-                style="@style/Widget.Material3.Button.IconButton"
+                android:id="@+id/chip_tab_add"
+                style="@style/Widget.V2ex.Button.TabAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:contentDescription="@string/tab_setting"
-                app:icon="@drawable/ic_add_white_24dp"
-                app:iconTint="?attr/colorOnSurface"
-                app:backgroundTint="@android:color/transparent" />
+                app:icon="@drawable/ic_add_white_24dp" />
 
         </LinearLayout>
 

@@ -56,6 +56,19 @@ object TimeUtil {
         return timeStr
     }
 
+    fun getReplyTime(created: Long): String {
+        if (created <= 0) return ""
+        val createdMs = if (created < 100000000000L) created * 1000 else created
+        val diffSec = ((System.currentTimeMillis() - createdMs) / 1000).coerceAtLeast(0)
+        val hours = diffSec / 3600
+        if (hours >= 1) {
+            return hours.toString() + "小时前"
+        }
+        val minutes = (diffSec % 3600) / 60
+        val displayMinutes = if (minutes <= 0) 1 else minutes
+        return displayMinutes.toString() + "分钟前"
+    }
+
 
     /**
      * created : 这个是来自于 v2ex api 的变量
