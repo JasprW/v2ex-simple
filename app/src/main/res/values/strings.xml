@@ -13,7 +13,7 @@
     <string name="error_parser">error parse</string>
     <string name="title_activity_details">Details</string>
     <string name="author">Author</string>
-    <string name="content">Content , For change line I have to do a lot of things, please hurt me</string>
+    <string name="content">Content, For change line I have to do a lot of things, please hurt me</string>
     <string name="node">Node</string>
     <string name="menu_share">Share</string>
     <string name="title_activity_settings">Settings</string>
@@ -206,6 +206,7 @@
     <string name="newest">Newest</string>
     <string name="hot">Hot</string>
     <string name="dark_mode_darker">More Darker Mode</string>
+    <string name="dark_mode_color">Dark mode color</string>
     <string name="normal_dark">Normal Dark</string>
     <string name="super_dark">Super Dark</string>
 

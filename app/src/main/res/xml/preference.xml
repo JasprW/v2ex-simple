@@ -36,6 +36,11 @@
             app:useSimpleSummaryProvider="true"
             />
 
+        <Preference
+            android:key="pref_amoled"
+            android:title="@string/dark_mode_color"
+            android:summary="@string/normal_dark" />
+
         <ListPreference
             android:key="pref_language"
             android:title="@string/language"

@@ -6,7 +6,7 @@
               android:background="?item_bg_color"
               android:layout_height="wrap_content">
 
-    <include layout="@layout/item_topic_view"/>
+    <include layout="@layout/item_topic_detail_view"/>
 
     <LinearLayout
         android:orientation="vertical"

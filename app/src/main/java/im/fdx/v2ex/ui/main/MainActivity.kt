@@ -29,7 +29,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -214,6 +216,21 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         window.statusBarColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
         setSupportActionBar(binding.activityMainContent.toolbar)
 
+        val navPaddingTop = binding.navView.paddingTop
+        val navPaddingBottom = binding.navView.paddingBottom
+        val navPaddingStart = binding.navView.paddingStart
+        val navPaddingEnd = binding.navView.paddingEnd
+        ViewCompat.setOnApplyWindowInsetsListener(binding.navView) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.navView.setPadding(
+                navPaddingStart,
+                navPaddingTop + systemBars.top,
+                navPaddingEnd,
+                navPaddingBottom + systemBars.bottom
+            )
+            insets
+        }
+
         val intentFilter = IntentFilter().apply {
             addAction(Keys.ACTION_LOGIN)
             addAction(Keys.ACTION_LOGOUT)
@@ -321,19 +338,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                         Keys.PREF_NIGHT_MODE,
                         AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
                     ).apply()
-                    recreate()
-                }
-                .addDivider()
-                .addItem(getString(R.string.normal_dark)) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    setTheme(R.style.Theme_V2ex)
-                    pref.edit().putBoolean(Keys.PREF_AMOLED, false).apply()
-                    recreate()
-                }
-                .addItem(getString(R.string.super_dark)) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    setTheme(R.style.Theme_V2ex_amoled)
-                    pref.edit().putBoolean(Keys.PREF_AMOLED, true).apply()
                     recreate()
                 }
                 .show()

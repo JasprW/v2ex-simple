@@ -71,6 +71,34 @@ class SettingsActivity : BaseActivity() {
     private fun prefLanguage() {}
 
     private fun prefNightMode() {
+      prefAmoled()
+    }
+
+    private fun prefAmoled() {
+      val prefAmoled = findPreference<Preference>(Keys.PREF_AMOLED) ?: return
+      updateAmoledSummary(prefAmoled)
+      prefAmoled.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+        val items = arrayOf(getString(R.string.normal_dark), getString(R.string.super_dark))
+        val currentIndex = if (pref.getBoolean(Keys.PREF_AMOLED, true)) 1 else 0
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.dark_mode_color)
+            .setSingleChoiceItems(items, currentIndex) { dialog, which ->
+              pref.edit { putBoolean(Keys.PREF_AMOLED, which == 1) }
+              updateAmoledSummary(prefAmoled)
+              dialog.dismiss()
+            }
+            .show()
+        true
+      }
+    }
+
+    private fun updateAmoledSummary(preference: Preference) {
+      val isAmoled = pref.getBoolean(Keys.PREF_AMOLED, true)
+      preference.summary = if (isAmoled) {
+        getString(R.string.super_dark)
+      } else {
+        getString(R.string.normal_dark)
+      }
     }
 
     private fun prefMessage() {
@@ -179,6 +207,10 @@ class SettingsActivity : BaseActivity() {
         PREF_TEXT_SIZE -> {
           LocalBroadcastManager.getInstance(myApp).sendBroadcast(Intent(Keys.ACTION_TEXT_SIZE_CHANGE))
           activity?.finish()
+        }
+        Keys.PREF_AMOLED -> {
+          findPreference<Preference>(Keys.PREF_AMOLED)?.let { updateAmoledSummary(it) }
+          activity?.recreate()
         }
         "pref_language" -> {
           LocalBroadcastManager.getInstance(myApp).sendBroadcast(Intent(Keys.ACTION_LANGUAGE_CHANGE))
