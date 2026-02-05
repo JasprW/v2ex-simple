@@ -73,7 +73,11 @@ class Topic(
     constructor(): this("","","","","",0,null ,null,0,"",0,0)
 
     fun showCreated() :String{
-        return createdOriginal.ifEmpty { TimeUtil.getRelativeTime(created * 1000) }
+        return if (created > 0) {
+            TimeUtil.getRelativeTime(created)
+        } else {
+            createdOriginal
+        }
     }
 
     override fun toString() = "标题：$title,\n内容：$content"
@@ -89,4 +93,3 @@ class Topic(
   override fun hashCode() = id.hashCode()
 
 }
-

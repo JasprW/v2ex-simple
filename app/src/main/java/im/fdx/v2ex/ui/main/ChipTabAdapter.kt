@@ -63,7 +63,7 @@ class ChipTabAdapter(
 
     private fun applyChipShape(chip: Chip, isSelected: Boolean) {
         val density = chip.resources.displayMetrics.density
-        val targetCornerPx = if (isSelected) 8f * density else 16f * density
+        val targetCornerPx = if (isSelected) 16f * density else 8f * density
         val currentCornerPx = chip.getTag(R.id.tag_chip_corner) as? Float
 
         if (currentCornerPx == null || !chip.isLaidOut) {

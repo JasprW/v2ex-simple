@@ -26,34 +26,21 @@ object TimeUtil {
             return ""
         }
 
-        val now = System.currentTimeMillis()
-        val diff = (now - created) / 1000   //second
-        val day = diff / (24 * 60 * 60)
-        val hour = diff % (24 * 60 * 60) / 3600
-        val minute = diff % (60 * 60) / 60
-        val second = diff
-        var timeStr = ""
-        if (day in 1..365) {
-            timeStr = day.toString() + "天前";
-            return timeStr
-        }
-        if (day > 365) {
-            timeStr = SimpleDateFormat.getDateTimeInstance().format(created)
-            return timeStr
+        val createdMs = if (created < 100000000000L) created * 1000 else created
+        val diffSec = ((System.currentTimeMillis() - createdMs) / 1000).coerceAtLeast(0)
+        val days = diffSec / (24 * 60 * 60)
+        if (days >= 1) {
+            return days.toString() + "天前"
         }
 
-        if (hour == 0L && minute == 0L) {
-            if (second < 15)
-                return "刚刚" else return "几秒前"
+        val hours = diffSec / 3600
+        if (hours >= 1) {
+            return hours.toString() + "小时前"
         }
 
-        if (hour > 0) {
-            timeStr = hour.toString() + "小时前";
-        }
-        if (minute > 0) {
-            timeStr = timeStr.removeSuffix("前") + minute.toString() + "分钟前";
-        }
-        return timeStr
+        val minutes = (diffSec % 3600) / 60
+        val displayMinutes = if (minutes <= 0) 1 else minutes
+        return displayMinutes.toString() + "分钟前"
     }
 
     fun getReplyTime(created: Long): String {
