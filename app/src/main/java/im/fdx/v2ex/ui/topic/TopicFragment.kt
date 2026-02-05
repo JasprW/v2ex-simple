@@ -3,6 +3,7 @@ package im.fdx.v2ex.ui.topic
 import android.app.Activity
 import android.content.*
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -207,11 +208,17 @@ class TopicFragment : BaseFragment() {
         binding.detailRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             private var currentPosition = 0
+            private val titleVisibleRect = Rect()
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {}
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (mLayoutManager.findFirstVisibleItemPosition() == 0) {
+                val headerView = mLayoutManager.findViewByPosition(0)
+                val titleView = headerView?.findViewById<View>(R.id.tv_title)
+                val isTitleVisible = titleView?.getLocalVisibleRect(titleVisibleRect) == true
+                        && titleVisibleRect.height() > 0
+
+                if (isTitleVisible) {
                     if (currentPosition != 0) {
                         startAlphaAnimation(binding.tvToolbar, 500, false)
                         currentPosition = 0
