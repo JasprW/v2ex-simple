@@ -1,6 +1,7 @@
 package im.fdx.v2ex.ui
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.*
 import androidx.core.content.edit
@@ -11,6 +12,7 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.chip.Chip
+import com.google.android.material.color.MaterialColors
 import com.google.errorprone.annotations.Keep
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -254,15 +256,27 @@ class DefaultAdapter(val list: MutableList<MyTab>, val type: Status = STATUS_SHO
     override fun onBindViewHolder(vh: VH, position: Int) {
         vh.chip.text = list[vh.bindingAdapterPosition].title
         if (type == STATUS_SHOW) {
-            vh.chip.setCloseIconResource(R.drawable.ic_baseline_remove_circle_outline_24)
+            vh.chip.setChipIconResource(R.drawable.ic_baseline_remove_24)
+            applyChipColors(vh.chip, R.attr.colorPrimary, R.attr.colorOnPrimary)
         } else {
-            vh.chip.setCloseIconResource(R.drawable.ic_baseline_add_circle_outline_24)
+            vh.chip.setChipIconResource(R.drawable.ic_baseline_add_24)
+            applyChipColors(vh.chip, R.attr.colorPrimaryContainer, R.attr.colorOnPrimaryContainer)
         }
-        vh.chip.setOnCloseIconClickListener {
+        vh.chip.isCloseIconVisible = false
+        vh.chip.isChipIconVisible = true
+        vh.chip.setOnClickListener {
             if (vh.bindingAdapterPosition != -1) {
                 listener?.invoke(vh.bindingAdapterPosition, list[vh.bindingAdapterPosition])
             }
         }
+    }
+
+    private fun applyChipColors(chip: Chip, backgroundAttr: Int, contentAttr: Int) {
+        val backgroundColor = MaterialColors.getColor(chip, backgroundAttr)
+        val contentColor = MaterialColors.getColor(chip, contentAttr)
+        chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
+        chip.setTextColor(contentColor)
+        chip.chipIconTint = ColorStateList.valueOf(contentColor)
     }
 
     class VH(containerView: View) : RecyclerView.ViewHolder(containerView) {

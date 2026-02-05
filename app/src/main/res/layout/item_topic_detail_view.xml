@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_text_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?item_bg_color"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="12dp"
+    tools:targetApi="33">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/VText.TitleTextStyleLarge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_goneMarginEnd="8dp"
+        app:layout_goneMarginStart="12dp"
+        tools:text="@string/content" />
+
+    <LinearLayout
+        android:id="@+id/avatar_node"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/iv_avatar_profile"
+        app:layout_constraintTop_toTopOf="@id/iv_avatar_profile">
+
+        <TextView
+            android:id="@+id/tv_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/author"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="?text_medium"
+            app:layout_constraintEnd_toStartOf="@+id/tv_meta_separator"
+            tools:text="author" />
+
+        <TextView
+            android:id="@+id/tv_meta_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:text="·"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="?text_medium"/>
+
+        <TextView
+            android:id="@+id/tv_node"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/node"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="?text_medium"
+            tools:text="node" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_created"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/reply_time"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="?text_small"
+        app:layout_constraintEnd_toStartOf="@+id/llReply"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/avatar_node"
+        app:layout_constraintTop_toBottomOf="@+id/avatar_node"
+        tools:text="12小时23分钟前" />
+
+    <LinearLayout
+        android:id="@+id/llReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:baselineAligned="true"
+        app:layout_constraintEnd_toEndOf="@+id/tv_title"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_created">
+
+        <ImageView
+            android:layout_width="?text_medium"
+            android:layout_height="?text_medium"
+            android:src="@drawable/ic_message_black_24dp" />
+
+        <TextView
+            android:id="@+id/tv_reply_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:autoSizeMaxTextSize="?text_medium"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:paddingStart="2dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="?text_small"
+            tools:targetApi="o"
+            tools:text="123" />
+
+    </LinearLayout>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_avatar_profile"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/it_is_avatar"
+        android:src="@drawable/ic_profile"
+        app:civ_border_width="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title"
+        />
+
+    <im.fdx.v2ex.view.GoodTextView
+        android:id="@+id/tv_content"
+        style="@style/VText.ContentStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/tv_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_created"
+        tools:text="@string/content" />
+
+    <include
+        android:id="@+id/divider"
+        layout="@layout/divider"
+        android:layout_width="0dp"
+        android:layout_height="1px"
+        android:layout_marginTop="12dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="@+id/tv_title"
+        app:layout_constraintStart_toStartOf="@id/tv_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
