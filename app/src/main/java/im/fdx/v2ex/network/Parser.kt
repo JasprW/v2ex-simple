@@ -366,25 +366,21 @@ class Parser(private val htmlStr: String) {
         val created = TimeUtil.toUtcTime2(createdUnformed?.attr("title"))
         topicModel.createdOriginal = createdOriginal.removeVia()
 
-        var replyNum = ""
+        val replyPattern = Regex("(\\d+)\\s*(?:条回复|回复|replies?)", RegexOption.IGNORE_CASE)
+        var replyNum: Int? = null
         val grays = doc.getElementsByClass("gray")
-        var hasReply = false
         for (gray in grays) {
-            if (gray.text().contains("条回复")) {
-                val wholeText = gray.text()
-                val index = wholeText.indexOf("条回复")
-                replyNum = wholeText.substring(0, index - 1).trim()
-                if (replyNum.isNotEmpty()) {
-                    hasReply = true
-                }
+            val match = replyPattern.find(gray.text())
+            if (match != null) {
+                replyNum = match.groupValues[1].toIntOrNull()
                 break
             }
         }
-
-        val replies = when {
-            hasReply -> Integer.parseInt(replyNum)
-            else -> 0
+        if (replyNum == null) {
+            replyNum = replyPattern.find(htmlStr)?.groupValues?.get(1)?.toIntOrNull()
         }
+
+        val replies = replyNum ?: 0
 
 
         val member = Member()
