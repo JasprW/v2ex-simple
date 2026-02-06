@@ -3,7 +3,10 @@ package im.fdx.v2ex.ui
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -48,7 +51,10 @@ class TabSettingActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tab_setting)
 
-        setUpToolbar(getString(R.string.tab_setting))
+        val toolbar = setUpToolbar("")
+        findViewById<TextView>(R.id.tv_toolbar_title).text = getString(R.string.tab_setting)
+        findViewById<View>(R.id.btn_tab_reset).setOnClickListener { reset() }
+        findViewById<View>(R.id.btn_tab_save).setOnClickListener { save() }
         initTab()
 
     }
@@ -170,21 +176,6 @@ class TabSettingActivity : BaseActivity() {
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_tab_setting, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_reset -> reset()
-            R.id.menu_save -> save()
-        }
-
-        return true
-    }
-
-
     private fun reset() {
         curList.clear()
         curList.addAll(initMyTabs)
@@ -255,12 +246,13 @@ class DefaultAdapter(val list: MutableList<MyTab>, val type: Status = STATUS_SHO
 
     override fun onBindViewHolder(vh: VH, position: Int) {
         vh.chip.text = list[vh.bindingAdapterPosition].title
+        vh.chip.setChipStrokeWidth(0f)
         if (type == STATUS_SHOW) {
             vh.chip.setChipIconResource(R.drawable.ic_baseline_remove_24)
-            applyChipColors(vh.chip, R.attr.colorPrimary, R.attr.colorOnPrimary)
+            applyChipColors(vh.chip, R.attr.colorPrimaryContainer, R.attr.colorOnPrimary)
         } else {
             vh.chip.setChipIconResource(R.drawable.ic_baseline_add_24)
-            applyChipColors(vh.chip, R.attr.colorPrimaryContainer, R.attr.colorOnPrimaryContainer)
+            applyChipColors(vh.chip, R.attr.colorSecondaryContainer, R.attr.colorOnSecondaryContainer)
         }
         vh.chip.isCloseIconVisible = false
         vh.chip.isChipIconVisible = true

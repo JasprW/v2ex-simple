@@ -14,15 +14,92 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fitsSystemWindows="true">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?toolbar_background"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:title=""
+            app:titleTextAppearance="@style/VText.ToolbarStyle"
+            app:contentInsetStartWithNavigation="0dp">
 
-        <include layout="@layout/appbar" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="8dp"
+                android:paddingEnd="12dp">
+
+                <TextView
+                    android:id="@+id/tv_toolbar_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/VText.ToolbarStyle"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/toolbar_actions"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/toolbar_actions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <FrameLayout
+                        android:id="@+id/btn_tab_reset"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/toolbar_action_bg"
+                        android:contentDescription="@string/menu_reset"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/menu_reset"
+                            android:tint="?attr/colorOnSecondaryContainer"
+                            android:src="@drawable/ic_refresh_24dp" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/btn_tab_save"
+                        android:layout_width="48dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/toolbar_action_save_bg"
+                        android:contentDescription="@string/menu_save"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/menu_save"
+                            android:tint="?attr/colorOnPrimary"
+                            android:src="@drawable/ic_check_black_24dp" />
+                    </FrameLayout>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        >
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardShow"
@@ -31,7 +108,7 @@
             android:layout_marginBottom="12dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
+            app:strokeColor="?attr/colorSecondaryFixed"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -46,7 +123,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/show_area"
                     android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textColor="?attr/colorPrimary" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvLeft"
@@ -67,7 +144,7 @@
             android:layout_marginBottom="12dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
+            app:strokeColor="?attr/colorSecondaryFixed"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -82,7 +159,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/hide_area"
                     android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textColor="?attr/colorSecondary" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvRight"
