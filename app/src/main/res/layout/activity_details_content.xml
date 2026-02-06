@@ -1,10 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?item_bg_color"
-    android:orientation="vertical"
     tools:context="im.fdx.v2ex.ui.topic.TopicActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -14,6 +13,9 @@
         android:background="?toolbar_background"
         android:elevation="4dp"
         android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:expanded="true"
         app:liftOnScroll="true"
         app:liftOnScrollTargetViewId="@id/detail_recycler_view"
@@ -45,8 +47,11 @@
         android:id="@+id/swipe_details"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="?item_bg_color">
+        android:background="?item_bg_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_details">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/detail_recycler_view"
@@ -56,7 +61,7 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/foot_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,79 +69,66 @@
         android:paddingEnd="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:background="@android:color/transparent"
         android:clipChildren="false"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reply_card"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/topic_action_group"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:elevation="2dp"
-            app:hintEnabled="false"
-            app:boxBackgroundColor="?attr/colorSurfaceContainerLow"
-            app:boxBackgroundMode="filled"
-            app:boxCornerRadiusBottomEnd="20dp"
-            app:boxCornerRadiusBottomStart="20dp"
-            app:boxCornerRadiusTopEnd="20dp"
-            app:boxCornerRadiusTopStart="20dp"
-            app:boxStrokeColor="?attr/colorOutlineVariant"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1.5dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/transparent"
+            android:elevation="6dp"
+            android:gravity="center"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/flReply"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_post_reply"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:hint="send reply"
-                android:inputType="textMultiLine"
-                android:maxLines="5"
-                android:minLines="1"
-                android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="12dp"
-                android:textAllCaps="false"
-                android:textColorHint="?attr/colorOnSurfaceVariant"
-                android:textSize="?text_large"
-                tools:ignore="Autofill" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <FrameLayout
-            android:id="@+id/flReply"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/iv_send"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_action_favor"
+                style="@style/Widget.V2ex.TopicAction.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/reply"
-                android:src="@drawable/ic_send_hint_24dp"
-                app:backgroundTint="?attr/colorPrimary"
-                app:fabSize="mini"
-                app:tint="?attr/colorOnPrimary"
-                app:useCompatPadding="true" />
+                android:contentDescription="@string/favor"
+                app:icon="@drawable/ic_favorite_border_black_24dp" />
 
-            <ProgressBar
-                android:id="@+id/pb_send"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_action_thanks"
+                style="@style/Widget.V2ex.TopicAction.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:contentDescription="@string/thanks"
+                app:icon="@drawable/ic_thumb_up_24dp" />
 
-        </FrameLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_action_reply"
+                style="@style/Widget.V2ex.TopicAction.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:iconPadding="8dp"
+                android:backgroundTint="?attr/colorPrimaryContainer"
+                app:iconTint="?attr/colorOnPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:checkable="true"
+                android:text="@string/reply"
+                app:icon="@drawable/ic_message_black_24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_action_share"
+                style="@style/Widget.V2ex.TopicAction.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/menu_share"
+                app:icon="@drawable/ic_share_24dp" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
