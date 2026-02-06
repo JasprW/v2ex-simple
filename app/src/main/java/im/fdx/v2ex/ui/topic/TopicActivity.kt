@@ -1,150 +1,132 @@
 package im.fdx.v2ex.ui.topic
 
-import android.content.*
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.view.MotionEvent
-import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.activity.compose.setContent
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
 import im.fdx.v2ex.R
-import im.fdx.v2ex.databinding.ActivityDetailsBinding
 import im.fdx.v2ex.pref
 import im.fdx.v2ex.ui.BaseActivity
+import im.fdx.v2ex.ui.LoginActivity
+import im.fdx.v2ex.ui.PhotoActivity
+import im.fdx.v2ex.ui.compose.theme.V2exTheme
 import im.fdx.v2ex.ui.main.Topic
+import im.fdx.v2ex.ui.member.MemberActivity
+import im.fdx.v2ex.ui.node.NodeActivity
+import im.fdx.v2ex.ui.topic.compose.TopicPageItem
+import im.fdx.v2ex.ui.topic.compose.TopicPagerRoute
 import im.fdx.v2ex.utils.Keys
-import im.fdx.v2ex.view.ViewPagerHelper
-import im.fdx.v2ex.view.ZoomOutPageTransform
+import im.fdx.v2ex.utils.extensions.startActivity
 import im.fdx.v2ex.utils.extensions.toast
-import kotlin.math.abs
 
-
-/**
- *  这个仅是容器，因为加入了左右滑动， 于是就又用Fragment来做内容
- */
 class TopicActivity : BaseActivity() {
 
-  private var helper: ViewPagerHelper? = null
-  private lateinit var binding: ActivityDetailsBinding
-  private lateinit var vpAdapter: VpAdapter
+    private val isUsePager by lazy { pref.getBoolean("pref_viewpager", true) }
 
-  private lateinit var mTopicId :String
-
-  val isUsePager by lazy {  pref.getBoolean("pref_viewpager", true) }
-  private var position = 0
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    binding = ActivityDetailsBinding.inflate(layoutInflater)
-    val view = binding.root
-    setContentView(view)
-
-    applyEdgeToEdge(binding.root)
-
-    vpAdapter = VpAdapter(this)
-    parseIntent(intent)
-  }
-
-  private fun parseIntent(intent: Intent) {
-    val data = intent.data
-    val topicModel = intent.getParcelableExtra<Topic>(Keys.KEY_TOPIC_MODEL)
-    val topicId = intent.getStringExtra(Keys.KEY_TOPIC_ID)
-    val list = intent.getParcelableArrayListExtra<Topic>(Keys.KEY_TOPIC_LIST)
-    val pos = intent.getIntExtra(Keys.KEY_POSITION, 0)
-    mTopicId = when {
-      data != null -> {
-        data.pathSegments.getOrNull(1)?:""
-      }
-      topicModel != null -> {
-        topicModel.id
-      }
-      topicId != null -> {
-        topicId
-      }
-      else -> {
-        ""
-      }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val payload = parsePayload(intent)
+        if (payload == null) {
+            toast("主题打开失败")
+            finish()
+            return
+        }
+        applyEdgeToEdgeWindow()
+        setContent {
+            V2exTheme {
+                TopicPagerRoute(
+                    pages = payload.pages,
+                    initialPage = payload.initialPage,
+                    pagerEnabled = payload.pagerEnabled,
+                    onBack = { finish() },
+                    onLogin = {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    },
+                    onOpenMember = { username ->
+                        startActivity<MemberActivity>(Keys.KEY_USERNAME to username)
+                    },
+                    onOpenNode = { nodeName ->
+                        startActivity<NodeActivity>(Keys.KEY_NODE_NAME to nodeName)
+                    },
+                    onOpenTopic = { topicId ->
+                        startActivity(Intent(this, TopicActivity::class.java).apply {
+                            putExtra(Keys.KEY_TOPIC_ID, topicId)
+                        })
+                    },
+                    onOpenPhotos = { photos, position ->
+                        startActivity(Intent(this, PhotoActivity::class.java).apply {
+                            putStringArrayListExtra(Keys.KEY_PHOTO, ArrayList(photos))
+                            putExtra(Keys.KEY_POSITION, position)
+                        })
+                    },
+                )
+            }
+        }
     }
 
-    if(list!=null) {
-      position = pos
+    private fun parsePayload(intent: Intent): TopicPayload? {
+        val data = intent.data
+        val topicModel = intent.getParcelableExtra<Topic>(Keys.KEY_TOPIC_MODEL)
+        val topicId = intent.getStringExtra(Keys.KEY_TOPIC_ID)
+        val topicList = intent.getParcelableArrayListExtra<Topic>(Keys.KEY_TOPIC_LIST)
+        val rawPosition = intent.getIntExtra(Keys.KEY_POSITION, 0)
+
+        val resolvedTopicId = when {
+            data != null -> data.pathSegments.getOrNull(1).orEmpty()
+            topicModel != null -> topicModel.id
+            !topicId.isNullOrBlank() -> topicId
+            else -> ""
+        }
+
+        if (resolvedTopicId.isBlank()) {
+            return null
+        }
+
+        if (!topicList.isNullOrEmpty() && isUsePager) {
+            val pages = topicList.map { topic -> TopicPageItem(topicId = topic.id, topic = topic) }
+            val initialPage = rawPosition.coerceIn(0, pages.lastIndex)
+            return TopicPayload(
+                pages = pages,
+                initialPage = initialPage,
+                pagerEnabled = true,
+            )
+        }
+
+        val fallbackTopic = if (!topicList.isNullOrEmpty()) {
+            topicList.getOrNull(rawPosition.coerceIn(0, topicList.lastIndex))
+        } else {
+            null
+        }
+
+        return TopicPayload(
+            pages = listOf(
+                TopicPageItem(
+                    topicId = resolvedTopicId,
+                    topic = topicModel ?: fallbackTopic,
+                ),
+            ),
+            initialPage = 0,
+            pagerEnabled = false,
+        )
     }
 
-    if (mTopicId.isEmpty()) {
-      toast("主题打开失败")
-      finish()
-      return
+    private fun applyEdgeToEdgeWindow() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val surfaceColor = com.google.android.material.color.MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.5f
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
     }
-
-    //如果是从首页打开，那么会有所有列表信息，那么就可以获取到列表信息，达到左右滑动
-    val out2 = list?.map { topic ->
-      TopicFragment().apply {
-        arguments = bundleOf(Keys.KEY_TOPIC_MODEL to topic, Keys.KEY_TOPIC_ID to topic.id)
-      }
-    } ?:
-      mutableListOf(TopicFragment().apply {
-        arguments = bundleOf(Keys.KEY_TOPIC_MODEL to topicModel, Keys.KEY_TOPIC_ID to mTopicId)
-      })
-
-    val out: List<TopicFragment>
-
-    if (isUsePager) {
-      out = out2
-    } else {
-      out = mutableListOf(TopicFragment().apply {
-        arguments = bundleOf(Keys.KEY_TOPIC_MODEL to topicModel, Keys.KEY_TOPIC_ID to mTopicId)
-      })
-    }
-
-
-
-    vpAdapter.initList(out)
-    if(!isUsePager) {
-      binding.viewPagerDetail.isUserInputEnabled = false
-    }
-    binding.viewPagerDetail.run {
-      adapter = vpAdapter
-      setCurrentItem(position, false)
-      setPageTransformer(ZoomOutPageTransform())
-    }
-    helper = ViewPagerHelper(binding.viewPagerDetail)
-  }
-
-  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-    if (isUsePager) {
-      helper?.dispatchTouchEvent(ev)
-    }
-    return super.dispatchTouchEvent(ev)
-
-  }
-
 }
 
-
-/**
- * 管理topicfragment， 存储当前位置等信息。
- *
- * todo 需要加入和endlessScrollListener的联动，不然这里的list没法增加。
- */
-class VpAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-
-  private val fgList : MutableList<TopicFragment> = mutableListOf()
-
-
-  fun initList(list: List<TopicFragment>) {
-    fgList.addAll(list)
-  }
-
-  fun addList(list: List<TopicFragment>) {
-    fgList.addAll(list)
-  }
-
-  override fun createFragment(position: Int): Fragment {
-    return fgList[position]
-  }
-
-  override fun getItemCount(): Int {
-    return fgList.size
-  }
-
-}
+private data class TopicPayload(
+    val pages: List<TopicPageItem>,
+    val initialPage: Int,
+    val pagerEnabled: Boolean,
+)

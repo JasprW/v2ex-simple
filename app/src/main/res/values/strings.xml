@@ -212,6 +212,43 @@
     <string name="dark_mode_color">Dark mode color</string>
     <string name="normal_dark">Normal Dark</string>
     <string name="super_dark">Super Dark</string>
+    <string name="topic_action_back">Back</string>
+    <string name="topic_action_more">More</string>
+    <string name="topic_block_success">Blocked successfully</string>
+    <string name="topic_unblock_success">Unblocked successfully</string>
+    <string name="topic_loading">Loading…</string>
+    <string name="topic_floor_format">#%1$d</string>
+    <string name="topic_op_badge">OP</string>
+    <string name="topic_select_reason">Please select a reason</string>
+    <string name="topic_conversation_title">Conversation</string>
+    <string name="topic_error_open">Unable to open this topic</string>
+    <string name="topic_error_load_more_replies">Failed to load more replies</string>
+    <string name="topic_error_action_retry_refresh">Operation failed. Please refresh and try again</string>
+    <string name="topic_favor_success">Added to favorites</string>
+    <string name="topic_unfavor_success">Removed from favorites</string>
+    <string name="topic_favor_failed">Favorite action failed</string>
+    <string name="topic_thank_success">Thanks sent</string>
+    <string name="topic_thank_failed">Failed to send thanks</string>
+    <string name="topic_block_failed">Block action failed</string>
+    <string name="topic_share_text">Shared from V2EX: %1$s\n%2$s</string>
+    <string name="topic_reply_send_failed_refresh">Failed to send. Please refresh and try again</string>
+    <string name="topic_reply_post_success">Reply posted</string>
+    <string name="topic_reply_post_failed">Failed to post reply</string>
+    <string name="topic_refresh_retry">Please refresh and try again</string>
+    <string name="topic_hide_success">Reply hidden</string>
+    <string name="topic_hide_failed">Failed to hide reply</string>
+    <string name="topic_report_submitted">Report submitted to moderators</string>
+    <string name="topic_error_retry">Something went wrong. Please try again</string>
+    <string name="topic_report_topic_template">This topic involves %1$s @Livid</string>
+    <string name="topic_report_reply_template">#%1$d This reply involves %2$s @Livid</string>
+
+    <string-array name="topic_report_reasons">
+        <item>Spam</item>
+        <item>False advertising</item>
+        <item>Harassment or violence</item>
+        <item>Flamebait or meaningless content</item>
+        <item>Other harmful content</item>
+    </string-array>
 
     <string-array name="j" translatable="false">
         <item>天</item>

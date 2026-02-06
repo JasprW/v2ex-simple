@@ -7,6 +7,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.compose")
 
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -27,7 +28,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "im.fdx.v2ex"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 36
         versionCode = 75
         versionName = "2.9.10"
@@ -83,6 +84,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
     }
     namespace = "im.fdx.v2ex"
 }
@@ -130,6 +132,23 @@ dependencies {
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     implementation ("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+    implementation(platform("androidx.compose:compose-bom:2025.01.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material:material")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material3:material3-android:1.5.0-alpha12")
+    implementation("androidx.compose.material3:material3-window-size-class")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     val roomVersion = "2.8.3"
     implementation("androidx.room:room-runtime:$roomVersion")

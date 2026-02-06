@@ -163,4 +163,41 @@
     <string name="lte">结束时间</string>
     <string name="newest">最新</string>
     <string name="hot">热门</string>
+    <string name="topic_action_back">返回</string>
+    <string name="topic_action_more">更多</string>
+    <string name="topic_block_success">屏蔽成功</string>
+    <string name="topic_unblock_success">取消屏蔽成功</string>
+    <string name="topic_loading">加载中…</string>
+    <string name="topic_floor_format">#%1$d</string>
+    <string name="topic_op_badge">楼主</string>
+    <string name="topic_select_reason">请选择理由</string>
+    <string name="topic_conversation_title">对话</string>
+    <string name="topic_error_open">无法打开该主题</string>
+    <string name="topic_error_load_more_replies">加载更多回复失败</string>
+    <string name="topic_error_action_retry_refresh">操作失败，请刷新页面后重试</string>
+    <string name="topic_favor_success">收藏成功</string>
+    <string name="topic_unfavor_success">取消收藏成功</string>
+    <string name="topic_favor_failed">收藏操作失败</string>
+    <string name="topic_thank_success">感谢成功</string>
+    <string name="topic_thank_failed">感谢失败</string>
+    <string name="topic_block_failed">屏蔽操作失败</string>
+    <string name="topic_share_text">来自V2EX的帖子：%1$s\n%2$s</string>
+    <string name="topic_reply_send_failed_refresh">发布失败，请刷新页面后重试</string>
+    <string name="topic_reply_post_success">发表回复成功</string>
+    <string name="topic_reply_post_failed">发表回复失败</string>
+    <string name="topic_refresh_retry">请刷新页面后重试</string>
+    <string name="topic_hide_success">忽略成功</string>
+    <string name="topic_hide_failed">忽略失败</string>
+    <string name="topic_report_submitted">已提交报告到管理员</string>
+    <string name="topic_error_retry">发生错误，请重试</string>
+    <string name="topic_report_topic_template">该帖子涉及%1$s @Livid</string>
+    <string name="topic_report_reply_template">#%1$d 该评论涉及%2$s @Livid</string>
+
+    <string-array name="topic_report_reasons">
+        <item>垃圾信息</item>
+        <item>虚假广告</item>
+        <item>骚扰，暴力</item>
+        <item>引战 无意义</item>
+        <item>其他不良信息</item>
+    </string-array>
 </resources>
