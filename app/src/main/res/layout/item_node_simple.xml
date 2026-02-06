@@ -16,7 +16,7 @@
     app:chipBackgroundColor="?attr/colorSurfaceContainerLow"
     app:chipMinHeight="32dp"
     app:chipStrokeColor="?attr/colorOutlineVariant"
-    app:chipStrokeWidth="1dp"
+    app:chipStrokeWidth="0dp"
     app:ensureMinTouchTargetSize="true"
     android:textAppearance="?attr/textAppearanceLabelLarge"
     tools:text="深圳北京" />

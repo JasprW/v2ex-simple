@@ -5,11 +5,13 @@
     <item
         android:id="@+id/menu_reset"
         app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_refresh_24dp"
         android:title="@string/menu_reset" />
 
     <item
         android:id="@+id/menu_save"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
+        app:actionLayout="@layout/action_tab_setting_save"
         android:title="@string/menu_save" />
 
 </menu>
