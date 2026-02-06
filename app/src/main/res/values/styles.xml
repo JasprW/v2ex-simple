@@ -116,6 +116,14 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:itemTextAppearance">@style/VText</item>
         <item name="android:itemBackground">?item_bg_color</item>
+        <item name="android:popupBackground">@drawable/popup_menu_background</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.V2ex.PopupMenu.ListView</item>
+    </style>
+
+    <style name="Widget.V2ex.PopupMenu.ListView" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:background">?item_bg_color</item>
+        <item name="android:divider">@null</item>
+        <item name="android:dividerHeight">0dp</item>
     </style>
 
     <style name="VTabLayout" parent="Widget.Material3.TabLayout">
@@ -150,6 +158,32 @@
         <item name="iconPadding">0dp</item>
         <item name="android:minWidth">32dp</item>
         <item name="android:minHeight">32dp</item>
+    </style>
+
+    <style name="Widget.V2ex.Toolbar.SaveButton" parent="Widget.Material3.Button.Icon">
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
+        <item name="iconPadding">0dp</item>
+        <item name="android:minHeight">32dp</item>
+        <item name="android:minWidth">40dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+    </style>
+
+    <style name="Widget.V2ex.TopicAction.Icon" parent="Widget.Material3.Button.IconButton">
+        <item name="android:minHeight">64dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+        <item name="iconSize">20dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="cornerRadius">@android:dimen/config_shapeCornerRadiusXlarge</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="backgroundTint">?attr/colorSecondaryContainer</item>
+        <item name="iconTint">?attr/colorOnSecondaryContainer</item>
     </style>
 
     <style name="AppTheme.Light.Dialog" parent="Theme.AppCompat.Light.Dialog">
@@ -200,10 +234,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="VText.ContentStyle">
+    <style name="VText.ContentStyle" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:lineSpacingExtra">2sp</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
-        <item name="android:textSize">?text_medium</item>
     </style>
 
     <style name="VText.Hint">

@@ -1,41 +1,34 @@
 package im.fdx.v2ex.ui.topic
 
-import android.app.Activity
 import android.content.*
-import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.button.MaterialButton
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.elvishew.xlog.XLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import im.fdx.v2ex.MyApp
 import im.fdx.v2ex.R
 import im.fdx.v2ex.database.DbHelper
-import kotlin.math.max
 import im.fdx.v2ex.databinding.ActivityDetailsContentBinding
 import im.fdx.v2ex.myApp
 import im.fdx.v2ex.network.*
 import im.fdx.v2ex.ui.BaseFragment
-import im.fdx.v2ex.ui.favor.FavorViewPagerAdapter.Companion.titles
 import im.fdx.v2ex.ui.main.Topic
 import im.fdx.v2ex.utils.Keys
 import im.fdx.v2ex.utils.Keys.reportReasons
@@ -45,7 +38,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.*
-import im.fdx.v2ex.utils.extensions.toast
 import java.io.IOException
 import java.lang.Exception
 
@@ -67,9 +59,15 @@ class TopicFragment : BaseFragment() {
     private var isFavored: Boolean = false
     private var isThanked: Boolean = false
     private var isIgnored: Boolean = false
+    private var isFavorUpdating: Boolean = false
+    private var isThankUpdating: Boolean = false
 
     private var temp: String = ""
     private val uiScope = CoroutineScope(Dispatchers.Main)
+
+    private var isFootVisible = true
+    private var isReplySheetShowing = false
+    private var lastScrollDy = 0
 
     private var receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -230,6 +228,8 @@ class TopicFragment : BaseFragment() {
                         currentPosition = -1
                     }
                 }
+
+                handleFootOnScroll(recyclerView, dy)
             }
         })
 
@@ -239,31 +239,20 @@ class TopicFragment : BaseFragment() {
         binding.detailRecyclerView.adapter = mAdapter
         binding.swipeDetails.initTheme()
         binding.swipeDetails.setOnRefreshListener { getRepliesPageOne(false) }
-
-        binding.etPostReply.setOnFocusChangeListener { v, hasFocus ->
-
-            if (!hasFocus) {
-                val inputMethodManager =
-                    requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
+        initActionButtons()
+        parentFragmentManager.setFragmentResultListener(ReplyComposerBottomSheet.RESULT_KEY, viewLifecycleOwner) { _, result ->
+            isReplySheetShowing = false
+            binding.btnActionReply.isChecked = false
+            applyActionButtonsUi()
+            val success = result.getBoolean(ReplyComposerBottomSheet.RESULT_SUCCESS, false)
+            val draft = result.getString(ReplyComposerBottomSheet.RESULT_DRAFT).orEmpty()
+            temp = if (success) "" else draft
+            if (success) {
+                binding.swipeDetails.isRefreshing = true
+                getRepliesPageOne(true)
             }
+            restoreFootAfterReplySheet()
         }
-
-        binding.ivSend.setOnClickListener {
-            postReply()
-        }
-
-        binding.etPostReply.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable) {
-                updateSendState(s)
-                temp = s.toString()
-            }
-
-        })
-        updateSendState(binding.etPostReply.text)
         val models: Topic? = arguments?.get(Keys.KEY_TOPIC_MODEL) as Topic?
         models?.let {
             mAdapter.initTopic(it)
@@ -271,7 +260,7 @@ class TopicFragment : BaseFragment() {
 
         uiScope.launch {
             val text = DbHelper.db.myReplyDao().getMyReplyById(mTopicId)?.content ?: ""
-            binding.etPostReply.setText(text)
+            temp = text
         }
 
         binding.swipeDetails.isRefreshing = true
@@ -287,8 +276,6 @@ class TopicFragment : BaseFragment() {
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val bottomInset = max(systemBars.bottom, imeInsets.bottom)
             appBar.setPadding(
                 appBarPadding.left,
                 appBarPadding.top + systemBars.top,
@@ -299,7 +286,7 @@ class TopicFragment : BaseFragment() {
                 footPadding.left,
                 footPadding.top,
                 footPadding.right,
-                footPadding.bottom + bottomInset
+                footPadding.bottom + systemBars.bottom
             )
             insets
         }
@@ -317,28 +304,246 @@ class TopicFragment : BaseFragment() {
         v?.startAnimation(anim)
     }
 
+    private fun initActionButtons() {
+        binding.btnActionFavor.setOnClickListener {
+            animateActionPress(it)
+            if (!myApp.isLogin) {
+                activity?.showLoginHint(binding.root)
+                return@setOnClickListener
+            }
+            if (isFavorUpdating) {
+                return@setOnClickListener
+            }
+            val token = once
+            if (token.isNullOrBlank()) {
+                toast("操作失败，请刷新页面后重试")
+                return@setOnClickListener
+            }
+            val previousFavored = isFavored
+            isFavored = !previousFavored
+            applyActionButtonsUi()
+            isFavorUpdating = true
+            favorOrNot(mTopicId, token, previousFavored)
+        }
+        binding.btnActionThanks.setOnClickListener {
+            animateActionPress(it)
+            if (!myApp.isLogin) {
+                activity?.showLoginHint(binding.root)
+                return@setOnClickListener
+            }
+            if (isThankUpdating || isThanked) {
+                return@setOnClickListener
+            }
+            val token = once
+            if (token.isNullOrBlank()) {
+                toast("操作失败，请刷新页面后重试")
+                return@setOnClickListener
+            }
+            val previousThanked = isThanked
+            isThanked = true
+            applyActionButtonsUi()
+            isThankUpdating = true
+            thankTopic(mTopicId, token, previousThanked)
+        }
+        binding.btnActionReply.setOnClickListener {
+            animateActionPress(it)
+            openReplyComposer("")
+        }
+        binding.btnActionShare.setOnClickListener {
+            animateActionPress(it)
+            activity?.shareText(
+                "来自V2EX的帖子：${(mAdapter.topics[0]).title} \n ${NetManager.HTTPS_V2EX_BASE}/t/${mAdapter.topics[0].id}"
+            )
+        }
+        applyActionButtonsUi()
+    }
+
+    fun openReplyComposer(prefill: String) {
+        if (!myApp.isLogin) {
+            activity?.showLoginHint(binding.root)
+            return
+        }
+        val token = once
+        if (token.isNullOrBlank()) {
+            toast("发布失败，请刷新页面后重试")
+            return
+        }
+        val initial = buildString {
+            append(temp)
+            if (temp.isNotEmpty() && !temp.endsWith(" ") && !prefill.isEmpty()) {
+                append(" ")
+            }
+            append(prefill)
+        }
+        isReplySheetShowing = true
+        binding.btnActionReply.isChecked = true
+        applyActionButtonsUi()
+        hideFoot()
+        ReplyComposerBottomSheet
+            .newInstance(mTopicId, token, initial)
+            .show(parentFragmentManager, ReplyComposerBottomSheet.TAG)
+    }
+
+    private fun restoreFootAfterReplySheet() {
+        if (!isAdded) {
+            return
+        }
+        if (!binding.detailRecyclerView.canScrollVertically(1) || lastScrollDy <= 0) {
+            showFoot()
+        } else {
+            hideFoot()
+        }
+    }
+
+    private fun animateActionPress(view: View) {
+        view.animate().cancel()
+        view.animate()
+            .scaleX(0.92f)
+            .scaleY(0.92f)
+            .setDuration(80)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(180)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+    }
+
+    private fun applyActionButtonsUi() {
+        binding.btnActionFavor.setIconResource(
+            if (isFavored) R.drawable.ic_favorite_black_24dp else R.drawable.ic_favorite_border_black_24dp
+        )
+        applyActionButtonColor(
+            button = binding.btnActionFavor,
+            usePrimary = isFavored,
+            checked = isFavored,
+        )
+        applyActionButtonColor(
+            button = binding.btnActionThanks,
+            usePrimary = isThanked,
+            checked = isThanked,
+        )
+        applyActionButtonColor(
+            button = binding.btnActionShare,
+            usePrimary = false,
+            checked = false,
+        )
+        binding.btnActionThanks.isEnabled = !isThanked
+        mMenu?.findItem(R.id.menu_favor)?.setIcon(
+            if (isFavored) R.drawable.ic_favorite_white_24dp else R.drawable.ic_favorite_border_white_24dp
+        )
+        mMenu?.findItem(R.id.menu_favor)?.setTitle(if (isFavored) R.string.unFavor else R.string.favor)
+        mMenu?.findItem(R.id.menu_thank_topic)?.setTitle(if (isThanked) R.string.already_thank else R.string.thanks)
+    }
+
+    private fun applyActionButtonColor(
+        button: MaterialButton,
+        usePrimary: Boolean,
+        checked: Boolean,
+    ) {
+        val backgroundColor = if (usePrimary) {
+            MaterialColors.getColor(button, com.google.android.material.R.attr.colorPrimaryContainer)
+        } else {
+            MaterialColors.getColor(button, com.google.android.material.R.attr.colorSecondaryContainer)
+        }
+        val contentColor = if (usePrimary) {
+            MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnPrimaryContainer)
+        } else {
+            MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSecondaryContainer)
+        }
+        button.backgroundTintList = android.content.res.ColorStateList.valueOf(backgroundColor)
+        button.iconTint = android.content.res.ColorStateList.valueOf(contentColor)
+        button.setTextColor(contentColor)
+        button.strokeWidth = 0
+        button.cornerRadius = if (checked) {
+            getSystemCornerRadius("config_shapeCornerRadiusMedium", 8)
+        } else {
+            getSystemCornerRadius("config_shapeCornerRadiusXlarge", 28)
+        }
+    }
+
+    private fun getSystemCornerRadius(name: String, fallbackDp: Int): Int {
+        val resId = resources.getIdentifier(name, "dimen", "android")
+        if (resId != 0) {
+            return resources.getDimensionPixelSize(resId)
+        }
+        return (fallbackDp * resources.displayMetrics.density).toInt()
+    }
+
 
     private fun setFootView() {
-        binding.footContainer.isVisible = myApp.isLogin
+        updateFootVisibility(true)
     }
 
-    private fun updateSendState(text: CharSequence?) {
-        val isEmpty = text.isNullOrEmpty()
-        binding.ivSend.isEnabled = !isEmpty
-        val backgroundColor = if (isEmpty) {
-            MaterialColors.getColor(binding.ivSend, R.attr.colorSurfaceVariant)
+    private fun updateFootVisibility(visible: Boolean) {
+        val foot = binding.footContainer
+        foot.clearAnimation()
+        foot.animate().cancel()
+        if (visible) {
+            foot.visibility = View.VISIBLE
+            foot.alpha = 1f
+            foot.translationY = 0f
+            isFootVisible = true
         } else {
-            MaterialColors.getColor(binding.ivSend, R.attr.colorPrimary)
+            foot.visibility = View.GONE
+            foot.alpha = 0f
+            foot.translationY = 0f
+            isFootVisible = false
         }
-        val iconColor = if (isEmpty) {
-            MaterialColors.getColor(binding.ivSend, R.attr.colorOnSurfaceVariant)
-        } else {
-            MaterialColors.getColor(binding.ivSend, R.attr.colorOnPrimary)
-        }
-        binding.ivSend.backgroundTintList = ColorStateList.valueOf(backgroundColor)
-        binding.ivSend.imageTintList = ColorStateList.valueOf(iconColor)
     }
 
+    private fun handleFootOnScroll(recyclerView: RecyclerView, dy: Int) {
+        if (isReplySheetShowing) {
+            return
+        }
+        lastScrollDy = dy
+        if (dy > FOOT_SCROLL_THRESHOLD && isFootVisible) {
+            hideFoot()
+        } else if (dy < -FOOT_SCROLL_THRESHOLD && !isFootVisible) {
+            showFoot()
+        }
+    }
+
+    private fun showFoot() {
+        val foot = binding.footContainer
+        if (foot.height == 0) {
+            foot.post { showFoot() }
+            return
+        }
+        isFootVisible = true
+        foot.visibility = View.VISIBLE
+        foot.translationY = foot.height.toFloat()
+        foot.alpha = 0f
+        foot.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(220)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+    }
+
+    private fun hideFoot() {
+        val foot = binding.footContainer
+        if (foot.height == 0) {
+            foot.post { hideFoot() }
+            return
+        }
+        isFootVisible = false
+        foot.animate()
+            .translationY(foot.height.toFloat())
+            .alpha(0f)
+            .setDuration(200)
+            .setInterpolator(AccelerateInterpolator())
+            .withEndAction {
+                if (!isFootVisible) {
+                    foot.visibility = View.GONE
+                }
+            }
+            .start()
+    }
 
     private fun getRepliesPageOne(scrollToBottom: Boolean) {
         vCall("${NetManager.HTTPS_V2EX_BASE}/t/$mTopicId" + "?p=1").start(object : Callback {
@@ -346,7 +551,7 @@ class TopicFragment : BaseFragment() {
             override fun onFailure(call: Call, e: IOException) {
                 activity?.runOnUiThread {
                     binding.swipeDetails.isRefreshing = false
-                    activity?.showHint(binding.etPostReply, "无法打开该主题")
+                    activity?.showHint(binding.detailRecyclerView, "无法打开该主题")
 
                 }
             }
@@ -362,15 +567,15 @@ class TopicFragment : BaseFragment() {
                         //权限问题，需要登录
                         binding.swipeDetails.isRefreshing = false
                         if (!myApp.isLogin) {
-                            activity?.showLoginHint(binding.etPostReply)
+                            activity?.showLoginHint(binding.detailRecyclerView)
                         } else {
-                            activity?.showHint(binding.etPostReply, "你要查看的页面可能遭遇权限问题");
+                            activity?.showHint(binding.detailRecyclerView, "你要查看的页面可能遭遇权限问题");
                         }
                         return@runOnUiThread
                     }
                     if (code != 200) {
                         binding.swipeDetails.isRefreshing = false
-                        activity?.showHint(binding.etPostReply, "无法打开该主题")
+                        activity?.showHint(binding.detailRecyclerView, "无法打开该主题")
                         return@runOnUiThread
                     }
                 }
@@ -421,6 +626,12 @@ class TopicFragment : BaseFragment() {
                         } else {
                             mMenu?.findItem(R.id.menu_ignore_topic)?.setTitle(R.string.ignore)
                         }
+                        applyActionButtonsUi()
+                    }
+                    if (!myApp.isLogin) {
+                        isFavored = false
+                        isThanked = false
+                        applyActionButtonsUi()
                     }
                     logd("got page 1")
                     val totalPage = parser.getPageValue()[1]  // [2,3]
@@ -458,21 +669,29 @@ class TopicFragment : BaseFragment() {
     }
 
     //<a href="/favorite/topic/809961?once=78809" class="tb">加入收藏</a>
-    private fun favorOrNot(topicId: String, once: String, doFavor: Boolean) {
-        vCall("${NetManager.HTTPS_V2EX_BASE}/${if (doFavor) "un" else ""}favorite/topic/$topicId?once=$once")
+    private fun favorOrNot(topicId: String, once: String, previousFavored: Boolean) {
+        vCall("${NetManager.HTTPS_V2EX_BASE}/${if (previousFavored) "un" else ""}favorite/topic/$topicId?once=$once")
             .start(object : Callback {
 
                 override fun onFailure(call: Call, e: IOException) {
-                    NetManager.dealError(activity, swipe = binding.swipeDetails)
+                    activity?.runOnUiThread {
+                        isFavorUpdating = false
+                        isFavored = previousFavored
+                        applyActionButtonsUi()
+                    }
+                    NetManager.dealError(activity)
                 }
 
                 @Throws(IOException::class)
                 override fun onResponse(call: Call, response: Response) {
-                    if (response.code == 302) {
-                        activity?.runOnUiThread {
-                            toast("${if (doFavor) "取消" else ""}收藏成功")
-                            binding.swipeDetails.isRefreshing = true
-                            getRepliesPageOne(false)
+                    activity?.runOnUiThread {
+                        isFavorUpdating = false
+                        if (response.code == 302) {
+                            toast("${if (previousFavored) "取消" else ""}收藏成功")
+                        } else {
+                            isFavored = previousFavored
+                            applyActionButtonsUi()
+                            NetManager.dealError(activity, response.code)
                         }
                     }
                 }
@@ -480,8 +699,8 @@ class TopicFragment : BaseFragment() {
     }
 
     //  <a href="#;" onclick="if (confirm('你确定要向本主题创建者发送谢意？')) { thankTopic(809961, '78809'); }" class="tb">感谢</a>
-    private fun thankTopic(topicId: String, once: String, isThanked: Boolean) {
-        if (isThanked) return
+    private fun thankTopic(topicId: String, once: String, previousThanked: Boolean) {
+        if (previousThanked) return
         val body = FormBody.Builder().add("once", once).build()
         HttpHelper.OK_CLIENT.newCall(
             Request.Builder()
@@ -491,17 +710,27 @@ class TopicFragment : BaseFragment() {
         )
             .start(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
+                    activity?.runOnUiThread {
+                        isThankUpdating = false
+                        isThanked = previousThanked
+                        applyActionButtonsUi()
+                    }
                     NetManager.dealError(activity)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    if (response.code == 200) {
-                        activity?.runOnUiThread {
+                    activity?.runOnUiThread {
+                        isThankUpdating = false
+                        if (response.code == 200) {
                             toast("感谢成功")
+                            this@TopicFragment.isThanked = true
                             mMenu?.findItem(R.id.menu_thank_topic)?.setTitle(R.string.already_thank)
+                            applyActionButtonsUi()
+                        } else {
+                            this@TopicFragment.isThanked = previousThanked
+                            applyActionButtonsUi()
+                            NetManager.dealError(activity, response.code)
                         }
-                    } else {
-                        NetManager.dealError(activity, response.code)
                     }
                 }
             })
@@ -534,62 +763,6 @@ class TopicFragment : BaseFragment() {
             })
 
     }
-
-    private fun postReply() {
-        binding.etPostReply.clearFocus()
-        logd("I clicked")
-        if (once == null) {
-            toast("发布失败，请刷新页面后重试")
-            return
-        }
-        val content = binding.etPostReply.text.toString()
-        val requestBody = FormBody.Builder()
-            .add("content", content)
-            .add("once", once!!)
-            .build()
-
-        binding.pbSend.visibility = View.VISIBLE
-        binding.ivSend.visibility = View.INVISIBLE
-
-        HttpHelper.OK_CLIENT.newCall(
-            Request.Builder()
-                .header("Origin", NetManager.HTTPS_V2EX_BASE)
-                .header("Referer", NetManager.HTTPS_V2EX_BASE + "/t/" + mTopicId)
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .url(NetManager.HTTPS_V2EX_BASE + "/t/" + mTopicId)
-                .post(requestBody)
-                .build()
-        ).enqueue(object : Callback {
-
-            override fun onFailure(call: Call, e: IOException) {
-                activity?.runOnUiThread {
-                    binding.pbSend.visibility = View.GONE
-                    binding.ivSend.visibility = View.VISIBLE
-                }
-                NetManager.dealError(activity, swipe = binding.swipeDetails)
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-                activity?.runOnUiThread {
-                    binding.pbSend.visibility = View.GONE
-                    binding.ivSend.visibility = View.VISIBLE
-                    if (response.code == 302) {
-                        logd("成功发布")
-                        toast("发表回复成功")
-                        binding.etPostReply.setText("")
-                        binding.swipeDetails.isRefreshing = true
-                        getRepliesPageOne(true)
-                    } else {
-                        toast("发表回复失败")
-                        binding.swipeDetails.isRefreshing = true
-                        getRepliesPageOne(true)
-                    }
-                }
-            }
-        })
-    }
-
 
     //仅仅发送评论，不包含UI处理
     fun postReplyImply(content: String) {
@@ -645,3 +818,5 @@ class TopicFragment : BaseFragment() {
 }
 
 private data class Padding(val left: Int, val top: Int, val right: Int, val bottom: Int)
+
+private const val FOOT_SCROLL_THRESHOLD = 10

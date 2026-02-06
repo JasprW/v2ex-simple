@@ -6,15 +6,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.ColorStateList
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -228,9 +222,9 @@ class TopicAdapter(
 
     private fun hide(replyItem: Reply, itemVH: ItemViewHolder) {
         logd("once: $once")
-        val editText: EditText = act.findViewById(R.id.et_post_reply)
+        val anchorView = act.findViewById<View>(R.id.detail_recycler_view)
         if (!MyApp.get().isLogin) {
-            act.showLoginHint(editText)
+            act.showLoginHint(anchorView)
             return
         }
 
@@ -271,7 +265,7 @@ class TopicAdapter(
     private fun report(replyItem: Reply, itemVH: ItemViewHolder) {
 
         if (!MyApp.get().isLogin) {
-            act.showLoginHint(act.findViewById(R.id.et_post_reply))
+            act.showLoginHint(act.findViewById(R.id.detail_recycler_view))
             return
         }
 
@@ -340,9 +334,9 @@ class TopicAdapter(
 
     private fun thank(replyItem: Reply, itemVH: ItemViewHolder) {
         logd("once: $once")
-        val editText: EditText = act.findViewById(R.id.et_post_reply)
+        val anchorView = act.findViewById<View>(R.id.detail_recycler_view)
         if (!MyApp.get().isLogin) {
-            act.showLoginHint(editText)
+            act.showLoginHint(anchorView)
             return
         }
 
@@ -404,31 +398,14 @@ class TopicAdapter(
     }
 
     private fun reply(replyItem: Reply, position: Int) {
-
-        val editText: EditText = act.findViewById(R.id.et_post_reply)
         if (!MyApp.get().isLogin) {
-            act.showLoginHint(editText)
+            act.showLoginHint(act.findViewById(R.id.detail_recycler_view))
             return
         }
 
         val text = "@${replyItem.member!!.username} " +
                 if (pref.getBoolean("pref_add_row", false)) "#${replyItem.getRowNum(position)} " else ""
-        if (!editText.text.toString().contains(text)) {
-            val spanString = SpannableString(text)
-            val span = ForegroundColorSpan(
-                MaterialColors.getColor(
-                    act,
-                    R.attr.colorPrimary,
-                    ContextCompat.getColor(act, R.color.primary)
-                )
-            )
-            spanString.setSpan(span, 0, text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            editText.append(spanString)
-        }
-        editText.setSelection(editText.length())
-        editText.requestFocus()
-        val imm = act.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+        topicFragment.openReplyComposer(text)
     }
 
     override fun getItemCount() = 1 + replies.size

@@ -80,12 +80,13 @@ class GoodTextView @JvmOverloads constructor(
         if (text.isNullOrEmpty()) {
             return
         }
+        val cleanedText = removeBlankLines(text)
         setLinkTextColor(ContextCompat.getColor(context, im.fdx.v2ex.R.color.mode))
         imageGetter = MyImageGetter(this, type)
         val spannedText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
+            Html.fromHtml(cleanedText, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
         } else {
-            Html.fromHtml(text, imageGetter, null)
+            Html.fromHtml(cleanedText, imageGetter, null)
         }
 
 
@@ -160,6 +161,17 @@ class GoodTextView @JvmOverloads constructor(
             false -> movementMethod = LinkMovementMethod.getInstance()
             else -> {}
         }
+    }
+
+    private fun removeBlankLines(text: String): String {
+        val collapsedBr = text.replace(Regex("(?i)(<br\\s*/?>\\s*){2,}"), "<br>")
+        val normalized = collapsedBr.replace("\r\n", "\n").replace("\r", "\n")
+        val lines = normalized.split("\n")
+        val filtered = lines.filterNot { line ->
+            val trimmed = line.replace("&nbsp;", "").replace("&#160;", "").trim()
+            trimmed.isEmpty()
+        }
+        return filtered.joinToString("\n")
     }
 }
 
@@ -322,4 +334,3 @@ class CodeTagHandler : Html.TagHandler {
     }
 
 }
-
