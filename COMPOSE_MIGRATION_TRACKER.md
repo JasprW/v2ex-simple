@@ -8,11 +8,14 @@
 
 | 类别 | 总数 | 已完成 | 进行中 | 待开始 | 完成率 |
 |------|------|--------|--------|--------|--------|
-| **Activities** | 19 | 1 | 0 | 18 | 5% |
-| **Fragments** | 10 | 1 | 0 | 9 | 10% |
-| **Adapters** | 12 | 1 | 0 | 11 | 8% |
+| **Activities** | 19 | 1 | 1 | 17 | 10% |
+| **Fragments** | 10 | 2 | 0 | 8 | 20% |
+| **Adapters** | 12 | 2 | 0 | 10 | 16% |
 
-**整体进度: 7%**
+**整体进度: 15%**
+
+### 更新记录
+- **2026-02-11**: Member 页面 Compose 化完成 (待验收)
 
 ### 已完成 ✅
 - **Topic Detail 页面** (参考 `jet_compose-backup-20260210` 分支)
@@ -155,43 +158,47 @@
 
 ### 3. 用户相关 (Member)
 
-#### MemberActivity
-- **文件路径**: `im.fdx.v2ex.ui.member.MemberActivity`
-- **布局文件**: `activity_member.xml`
-- **当前实现**: XML + ViewBinding
+#### MemberActivity ✅ Compose 实现已创建
+- **文件路径**: 
+  - `im.fdx.v2ex.ui.member.MemberActivity` (原 XML 实现)
+  - `im.fdx.v2ex.ui.member.MemberActivityCompose` (新 Compose 实现)
+- **布局文件**: `activity_member.xml` (保留)
+- **当前实现**: ✅ **Compose** (待验收)
 - **复杂度**: 🟡 中
 - **功能描述**:
   - 用户资料详情页
-  - TabLayout + ViewPager2 (用户主题、用户回复)
+  - HorizontalPager (用户主题、用户回复)
   - 用户头像、简介、统计数据
-- **改造难点**:
-  - TabLayout 转为 Compose TabRow
-  - ViewPager2 转为 HorizontalPager
-- **依赖页面**: UserReplyFragment, ReplyAdapter
-- **状态**: ⬜ 待开始
+  - 社交链接 (GitHub, Twitter, Location, Website, Bitcoin)
+  - 关注/屏蔽/举报功能
+- **Compose 文件**:
+  - `MemberViewModel.kt` - 状态管理和业务逻辑
+  - `MemberUiState.kt` - UI 状态定义
+  - `MemberRoute.kt` - 路由组件
+  - `MemberScreen.kt` - 主屏幕 (带 Preview)
+  - `MemberProfileHeader.kt` - 用户资料头部
+  - `MemberTopicsContent.kt` - 主题列表内容
+  - `MemberRepliesContent.kt` - 回复列表内容
+- **状态**: 🟡 **待验收**
 - **优先级**: 🔥 中
-- **预计工时**: 2-3 天
+- **预计工时**: 2-3 天 (✅ 已完成)
 
-#### UserReplyFragment
+#### UserReplyFragment ✅ 已被替代
 - **文件路径**: `im.fdx.v2ex.ui.member.UserReplyFragment`
-- **布局文件**: `fragment_user_reply.xml`
-- **当前实现**: XML + ViewBinding
+- **当前实现**: ✅ **MemberRepliesContent** (Compose)
+- **替代文件**: `im.fdx.v2ex.ui.member.compose.MemberRepliesContent`
 - **复杂度**: 🟢 低
 - **功能描述**:
-  - 用户回复列表
-  - RecyclerView + ReplyAdapter
-- **状态**: ⬜ 待开始
-- **优先级**: 🔥 中 (跟随 MemberActivity)
-- **预计工时**: 1 天
+  - 用户回复列表 (LazyColumn)
+  - 下拉刷新、上拉加载更多
+- **状态**: ✅ **已完成 (被 Compose 替代)**
 
-#### ReplyAdapter
+#### ReplyAdapter ✅ 已被替代
 - **文件路径**: `im.fdx.v2ex.ui.member.ReplyAdapter`
-- **当前实现**: RecyclerView.Adapter
+- **当前实现**: ✅ **LazyColumn + ReplyItem** (Compose)
+- **替代文件**: `MemberRepliesContent.kt` 中的 ReplyItem
 - **复杂度**: 🟢 低
-- **改造方案**: LazyColumn
-- **状态**: ⬜ 待开始
-- **优先级**: 🔥 中
-- **预计工时**: 0.5 天
+- **状态**: ✅ **已完成 (被 Compose 替代)**
 
 ---
 
