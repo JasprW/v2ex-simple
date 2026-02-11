@@ -2,10 +2,10 @@ package im.fdx.v2ex.ui.member
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import im.fdx.v2ex.ui.BaseActivity
-import im.fdx.v2ex.ui.LoginActivity
 import im.fdx.v2ex.ui.compose.theme.V2exTheme
 import im.fdx.v2ex.ui.main.NewTopicActivity
 import im.fdx.v2ex.ui.member.compose.MemberRoute
@@ -23,6 +23,7 @@ import im.fdx.v2ex.utils.extensions.toast
 class MemberActivityCompose : BaseActivity() {
 
     private val viewModel: MemberViewModel by viewModels()
+    private lateinit var composeView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +36,8 @@ class MemberActivityCompose : BaseActivity() {
             return
         }
 
-        applyEdgeToEdgeWindow()
+        composeView = View(this)
+        applyEdgeToEdge(composeView)
         
         setContent {
             V2exTheme {
@@ -49,7 +51,7 @@ class MemberActivityCompose : BaseActivity() {
                     },
                     onReportClick = { username, userUrl ->
                         if (!im.fdx.v2ex.myApp.isLogin) {
-                            showLoginHint()
+                            showLoginHint(composeView)
                             return@MemberRoute
                         }
                         startActivity(Intent(this, NewTopicActivity::class.java).apply {
@@ -59,7 +61,7 @@ class MemberActivityCompose : BaseActivity() {
                         })
                     },
                     onShowLoginHint = {
-                        showLoginHint()
+                        showLoginHint(composeView)
                     }
                 )
             }

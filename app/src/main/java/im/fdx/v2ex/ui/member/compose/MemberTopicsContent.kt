@@ -25,7 +25,9 @@ import im.fdx.v2ex.ui.compose.components.V2exEmptyView
 import im.fdx.v2ex.ui.compose.components.V2exErrorView
 import im.fdx.v2ex.ui.compose.theme.V2exTheme
 import im.fdx.v2ex.ui.main.Topic
+import im.fdx.v2ex.ui.member.Member
 import im.fdx.v2ex.ui.member.MemberTopicsUiState
+import im.fdx.v2ex.ui.node.Node
 
 /**
  * Member 主题列表内容
@@ -119,13 +121,14 @@ private fun TopicItem(
         supportingContent = {
             Column {
                 Text(
-                    text = "${topic.node.title} · ${topic.member?.username ?: ""} · ${topic.getTime()}",
+                    text = "${topic.node?.title ?: ""} · ${topic.member?.username ?: ""} · ${topic.showCreated()}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (topic.replies > 0) {
+                val replies = topic.replies
+                if (replies != null && replies > 0) {
                     Text(
-                        text = "${topic.replies} 回复",
+                        text = "$replies 回复",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -149,8 +152,8 @@ private fun MemberTopicsContentPreview() {
                         id = "1",
                         title = "这是一个测试主题标题",
                         content = "内容",
-                        node = Topic.Node("node1", "技术"),
-                        member = Topic.Member("user1", "testuser"),
+                        node = Node("node1", "技术"),
+                        member = Member(id = "1", username = "testuser"),
                         replies = 10,
                         created = System.currentTimeMillis()
                     ),
@@ -158,8 +161,8 @@ private fun MemberTopicsContentPreview() {
                         id = "2",
                         title = "这是另一个测试主题标题，稍微长一点",
                         content = "内容",
-                        node = Topic.Node("node2", "生活"),
-                        member = Topic.Member("user2", "testuser2"),
+                        node = Node("node2", "生活"),
+                        member = Member(id = "2", username = "testuser2"),
                         replies = 5,
                         created = System.currentTimeMillis()
                     )

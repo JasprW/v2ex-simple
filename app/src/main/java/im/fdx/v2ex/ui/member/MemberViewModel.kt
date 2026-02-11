@@ -8,7 +8,6 @@ import im.fdx.v2ex.network.NetManager
 import im.fdx.v2ex.network.NetManager.API_USER
 import im.fdx.v2ex.network.NetManager.HTTPS_V2EX_BASE
 import im.fdx.v2ex.network.Parser
-import im.fdx.v2ex.network.myGson
 import im.fdx.v2ex.network.vCall
 import im.fdx.v2ex.pref
 import im.fdx.v2ex.ui.main.Topic
@@ -79,7 +78,7 @@ class MemberViewModel(
                     } else {
                         val body = response.body?.string() ?: ""
                         try {
-                            val member = myGson.fromJson(body, Member::class.java)
+                            val member = NetManager.myGson.fromJson(body, Member::class.java)
                             _uiState.value = MemberUiState.Success(
                                 member = member,
                                 isFollowed = false,
@@ -207,7 +206,7 @@ class MemberViewModel(
                 override fun onResponse(call: Call, response: Response) {
                     val body = response.body?.string() ?: ""
                     try {
-                        val topics = myGson.fromJson(body, Array<Topic>::class.java)?.toList() ?: emptyList()
+                        val topics = NetManager.myGson.fromJson(body, Array<Topic>::class.java)?.toList() ?: emptyList()
 
                         currentTopicsPage = page
 

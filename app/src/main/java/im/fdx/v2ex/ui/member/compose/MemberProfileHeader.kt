@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bitcoin
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.GitHub
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AssistChip
@@ -145,9 +145,10 @@ fun MemberProfileHeader(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // 签名
-                    if (!member.tagline.isNullOrEmpty()) {
+                    val tagline = member.tagline
+                    if (!tagline.isNullOrEmpty()) {
                         Text(
-                            text = member.tagline,
+                            text = tagline,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -155,9 +156,10 @@ fun MemberProfileHeader(
                     }
 
                     // 个人简介
-                    if (!member.bio.isNullOrEmpty()) {
+                    val bio = member.bio
+                    if (!bio.isNullOrEmpty()) {
                         Text(
-                            text = member.bio,
+                            text = bio,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 3,
@@ -172,7 +174,7 @@ fun MemberProfileHeader(
                             Triple(Icons.Default.LocationOn, it, "location")
                         },
                         member.github?.takeIf { it.isNotEmpty() }?.let {
-                            Triple(Icons.Default.GitHub, it, "github")
+                            Triple(Icons.Default.Code, it, "github")
                         },
                         member.twitter?.takeIf { it.isNotEmpty() }?.let {
                             Triple(Icons.Default.Language, "@$it", "twitter")
@@ -181,7 +183,7 @@ fun MemberProfileHeader(
                             Triple(Icons.Default.Language, it, "website")
                         },
                         member.btc?.takeIf { it.isNotEmpty() }?.let {
-                            Triple(Icons.Default.Bitcoin, it, "bitcoin")
+                            Triple(Icons.Default.AccountBalanceWallet, it, "bitcoin")
                         }
                     )
 
