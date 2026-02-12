@@ -87,24 +87,15 @@ fun AllNodesScreen(
                         textFieldState = textFieldState,
                         onSearch = { onQueryChange(textFieldState.text.toString()) },
                         placeholder = { Text(text = stringResource(id = R.string.search_hint)) },
+                        leadingIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(id = R.string.topic_action_back),
+                                )
+                            }
+                        },
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.topic_action_back),
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}, enabled = false) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                            tint = Color.Transparent,
-                        )
-                    }
                 },
             )
         },
