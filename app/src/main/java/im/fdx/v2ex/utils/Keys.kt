@@ -43,7 +43,6 @@ object Keys {
     const val ACTION_V2EX_REPORT = "ACTION_V2EX_REPORT"
     const val ACTION_LANGUAGE_CHANGE = "ACTION_LANGUAGE_CHANGE"
 
-    const val FAVOR_FRAGMENT_TYPE = "type"
 
     const val KEY_UNREAD_COUNT = "count"
 

@@ -8,11 +8,11 @@
 
 | 类别 | 总数 | 已完成 | 进行中 | 待开始 | 完成率 |
 |------|------|--------|--------|--------|--------|
-| **Activities** | 19 | 5 | 0 | 14 | 26% |
-| **Fragments** | 10 | 2 | 0 | 8 | 20% |
-| **Adapters** | 12 | 3 | 0 | 9 | 25% |
+| **Activities** | 19 | 6 | 0 | 13 | 32% |
+| **Fragments** | 10 | 3 | 0 | 7 | 30% |
+| **Adapters** | 12 | 5 | 0 | 7 | 41% |
 
-**整体进度: 24%**
+**整体进度: 34%**
 
 ### 已完成 ✅
 - **Topic Detail 页面** (参考 `jet_compose-backup-20260210` 分支)
@@ -268,11 +268,9 @@
 - **文件路径**: 
   - `im.fdx.v2ex.ui.node.AllNodesAdapter`
   - `im.fdx.v2ex.ui.node.AllNodesAdapterNew`
-- **当前实现**:
-  - `AllNodesAdapterNew` 已删除（AllNodes 页面已不再使用 RecyclerView）
-  - `AllNodesAdapter` 仍用于 `NodeFavorFragment`（后续随 Favor 页面迁移）
+- **当前实现**: 旧 RecyclerView 适配器已删除（AllNodes/Favor 线均已迁移到 Compose）
 - **复杂度**: 🟢 低
-- **状态**: 🟨 进行中
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 中
 
 ---
@@ -281,25 +279,32 @@
 
 #### FavorActivity
 - **文件路径**: `im.fdx.v2ex.ui.favor.FavorActivity`
-- **布局文件**: `activity_follow_activity.xml`
-- **当前实现**: XML + findViewById
+- **布局文件**: `activity_follow_activity.xml` (已删除)
+- **当前实现**: ✅ Compose
 - **复杂度**: 🟡 中
 - **功能描述**:
   - 收藏页面
-  - TabLayout + ViewPager (主题收藏、节点收藏)
-- **依赖页面**: NodeFavorFragment, FavorViewPagerAdapter
-- **状态**: ⬜ 待开始
+  - PrimaryTabRow + Compose 三分栏（节点收藏、主题收藏、特别关注）
+- **依赖页面**: FavorNodeViewModel, FavorTopicsViewModel
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 低
 - **预计工时**: 2 天
 
+- **已落地（本次）**:
+  - 新增 `FavorScreen`（Tab + PullToRefresh）
+  - 节点收藏使用 Card 样式展示图标、名称、主题数
+  - 主题收藏/特别关注复用通用 `V2exTopicListItem`
+  - 文案国际化（zh-CN / zh-TW / en）
+  - 已删除旧 `FavorViewPagerAdapter` / `activity_follow_activity.xml`
+
 #### NodeFavorFragment
 - **文件路径**: `im.fdx.v2ex.ui.favor.NodeFavorFragment`
-- **布局文件**: `fragment_node_favor.xml`
-- **当前实现**: XML + ViewBinding
+- **布局文件**: `fragment_node_favor.xml` (无专用布局，已删除旧 Fragment)
+- **当前实现**: 已由 `FavorScreen` 内的 Compose 节点收藏 tab 替代
 - **复杂度**: 🟢 低
 - **功能描述**:
   - 收藏的节点列表
-- **状态**: ⬜ 待开始
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 低
 
 ---
@@ -785,6 +790,7 @@ TopicActivity (setContent)
 | 2026-02-10 | Assistant | 更新：发现 `jet_compose-backup-20260210` 分支已完成 Topic Detail Compose 化，添加参考实现详情 |
 | 2026-02-12 | Assistant | 完成 Member 页面重构与清理（含国际化）；完成 Node 页面 Compose 重构、交互优化与旧代码清理 |
 | 2026-02-12 | Assistant | 完成 Notification 与 AllNodes 页面 Compose 重构及旧代码清理；统一多个列表页面分割线与间距样式 |
+| 2026-02-12 | Assistant | 完成 Favor 页面 Compose 重构与旧代码清理；新增通用 Topic 列表项并统一接入 Node/Member/Favor |
 
 ---
 

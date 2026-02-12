@@ -133,14 +133,6 @@ class TopicsFragment : Fragment() {
 
         val args: Bundle? = arguments
         when {
-            args?.getInt(Keys.FAVOR_FRAGMENT_TYPE, -1) == 1 -> {
-                currentMode = FROM_FAVOR
-                mRequestURL = "$HTTPS_V2EX_BASE/my/topics"
-            }
-            args?.getInt(Keys.FAVOR_FRAGMENT_TYPE, -1) == 2 -> {
-                currentMode = FROM_FAVOR
-                mRequestURL = URL_FOLLOWING
-            }
             args?.getString(Keys.KEY_TAB) == "recent" -> mRequestURL = "$HTTPS_V2EX_BASE/recent"
             args?.getString(Keys.KEY_TAB) == "heated" -> mRequestURL = API_HEATED
             args?.getString(Keys.KEY_TAB) != null -> {
@@ -165,16 +157,17 @@ class TopicsFragment : Fragment() {
         }
 
         when (currentMode) {
-            FROM_NODE, FROM_SEARCH, FROM_FAVOR, FROM_MEMBER -> mRecyclerView?.addOnScrollListener(mScrollListener)
+            FROM_NODE, FROM_SEARCH, FROM_MEMBER -> mRecyclerView?.addOnScrollListener(mScrollListener)
             FROM_HOME -> {
                 if (args?.getString(Keys.KEY_TAB) == "recent") {
                     mRecyclerView?.addOnScrollListener(mScrollListener)
                 }
             }
+            FROM_FAVOR -> Unit
 
         }
         when(currentMode) {
-            FROM_MEMBER, FROM_FAVOR -> {
+            FROM_MEMBER -> {
                 togglePageNum(isUsePageNum)
             }
             else -> {
@@ -320,7 +313,7 @@ class TopicsFragment : Fragment() {
         } else {
             "$requestURL?p=$currentPage"
         }
-        vCall(url, if(currentMode == FROM_FAVOR) "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0" else null)
+        vCall(url)
             .start(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     showRefresh(false)
@@ -405,19 +398,6 @@ class TopicsFragment : Fragment() {
                             topicList.let { mAdapter.addAllItems(it) }
                         }
                     }
-                    FROM_FAVOR -> {
-                        pageNumberView?.totalNum = totalPage
-                        if (isEndlessMode) {
-                            if (mScrollListener.isRestart()) {
-                                topicList.let { mAdapter.updateItems(it) }
-                            } else {
-                                mScrollListener.success()
-                                topicList.let { mAdapter.addAllItems(it) }
-                            }
-                        } else {
-                            topicList.let { mAdapter.updateAllItemsWithoutDiff(it) }
-                        }
-                    }
                     FROM_HOME -> {
                         if (isEndlessMode) {
                             if (mScrollListener.isRestart()) {
@@ -431,6 +411,8 @@ class TopicsFragment : Fragment() {
                         }
                     }
                     FROM_SEARCH -> {
+                    }
+                    FROM_FAVOR -> {
                     }
                 }
             }

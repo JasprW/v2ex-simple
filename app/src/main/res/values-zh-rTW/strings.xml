@@ -222,6 +222,9 @@
     <string name="notification_action_replied">回覆了你：</string>
     <string name="notification_action_mentioned">提到了你：</string>
     <string name="notification_action_favorited">收藏了你發佈的主題：</string>
+    <string name="favor_tab_nodes">節點收藏</string>
+    <string name="favor_tab_topics">主題收藏</string>
+    <string name="favor_tab_following">特別關注</string>
 
     <string-array name="topic_report_reasons">
         <item>垃圾信息</item>

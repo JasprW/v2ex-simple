@@ -271,6 +271,9 @@
     <string name="notification_action_replied">replied to you:</string>
     <string name="notification_action_mentioned">mentioned you:</string>
     <string name="notification_action_favorited">favorited your topic:</string>
+    <string name="favor_tab_nodes">Node Favorites</string>
+    <string name="favor_tab_topics">Topic Favorites</string>
+    <string name="favor_tab_following">Special Following</string>
 
     <string-array name="topic_report_reasons">
         <item>Spam</item>

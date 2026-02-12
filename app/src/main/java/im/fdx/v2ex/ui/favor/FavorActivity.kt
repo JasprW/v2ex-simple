@@ -1,47 +1,57 @@
 package im.fdx.v2ex.ui.favor
 
+import android.graphics.Color
 import android.os.Bundle
-import android.view.MotionEvent
-import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import androidx.activity.compose.setContent
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
 import im.fdx.v2ex.ui.BaseActivity
-import im.fdx.v2ex.ui.favor.FavorViewPagerAdapter.Companion.titles
-import im.fdx.v2ex.ui.tabTitles
-import im.fdx.v2ex.utils.extensions.setUpToolbar
-import im.fdx.v2ex.view.ViewPagerHelper
-import kotlin.math.abs
+import im.fdx.v2ex.ui.compose.theme.V2exTheme
+import im.fdx.v2ex.ui.favor.compose.FavorScreen
+import im.fdx.v2ex.ui.node.NodeActivity
+import im.fdx.v2ex.ui.topic.TopicActivity
+import im.fdx.v2ex.utils.Keys
+import im.fdx.v2ex.utils.extensions.startActivity
 
 class FavorActivity : BaseActivity() {
-    private var helper: ViewPagerHelper? = null
-    lateinit var viewPager: ViewPager2
-    lateinit var tabLayout: TabLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_follow_activity)
-        applyEdgeToEdge(findViewById(android.R.id.content), findViewById(R.id.appbar_follow))
+        applyEdgeToEdgeWindow()
 
-        setUpToolbar(getString(R.string.my_follow))
-
-
-        tabLayout = findViewById(R.id.tl_favor)
-        viewPager = findViewById(R.id.viewpager_follow)
-        viewPager.offscreenPageLimit = titles.size
-        viewPager.adapter = FavorViewPagerAdapter(this)
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = titles[position]
-        }.attach()
-
-        helper = ViewPagerHelper(viewPager)
-
+        setContent {
+            V2exTheme {
+                FavorScreen(
+                    onBack = { finish() },
+                    onOpenNode = { node ->
+                        startActivity<NodeActivity>(Keys.KEY_NODE_NAME to node.name)
+                    },
+                    onOpenTopic = { topic ->
+                        startActivity<TopicActivity>(Keys.KEY_TOPIC_ID to topic.id)
+                    },
+                    onError = { code ->
+                        if (code <= 0) {
+                            im.fdx.v2ex.network.NetManager.dealError(this)
+                        } else {
+                            im.fdx.v2ex.network.NetManager.dealError(this, errorCode = code)
+                        }
+                    },
+                )
+            }
+        }
     }
 
-
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        helper?.dispatchTouchEvent(ev)
-        return super.dispatchTouchEvent(ev)
+    private fun applyEdgeToEdgeWindow() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val surfaceColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.5f
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
     }
-
 }

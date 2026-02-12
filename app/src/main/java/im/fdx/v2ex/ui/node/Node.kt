@@ -64,7 +64,14 @@ data class Node(
 
 
   val avatarNormalUrl: String
-    get() = "https:" + Regex("\\?s=\\d{1,3}").replace(avatar_normal?:"", "?s=64")
+    get() {
+      val raw = avatar_normal.orEmpty()
+      return when {
+        raw.startsWith("/static") -> "https://www.v2ex.com/static/img/node_64.png"
+        raw.startsWith("http") -> Regex("\\?s=\\d{1,3}").replace(raw, "?s=64")
+        else -> "https:" + Regex("\\?s=\\d{1,3}").replace(raw, "?s=64")
+      }
+    }
 
   val avatarLargeUrl: String
     get() = when {
