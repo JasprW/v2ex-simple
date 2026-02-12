@@ -154,18 +154,20 @@ fun NodeScreen(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
                     .padding(top = 8.dp)
                     .graphicsLayer { translationY = contentPullOffsetPx },
                 contentPadding = PaddingValues(bottom = 96.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 item {
                     NodeHeaderContent(node = uiState.node)
                 }
 
-                itemsIndexed(items = uiState.topics) { _, topic ->
+                itemsIndexed(items = uiState.topics) { index, topic ->
                     NodeTopicItem(topic = topic, onClick = { onTopicClick(topic.id) })
+                    if (index < uiState.topics.lastIndex) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
                 }
 
                 if (uiState.isLoadingMore) {
@@ -189,7 +191,9 @@ fun NodeScreen(
 private fun NodeHeaderContent(node: Node?) {
     if (node == null) return
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
@@ -222,6 +226,7 @@ private fun NodeHeaderContent(node: Node?) {
         Text(
             text = node.header.orEmpty(),
             style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
     }
     Spacer(modifier = Modifier.height(12.dp))
@@ -234,7 +239,7 @@ private fun NodeTopicItem(topic: Topic, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Text(
             text = topic.title,
@@ -264,8 +269,6 @@ private fun NodeTopicItem(topic: Topic, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 

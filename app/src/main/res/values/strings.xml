@@ -266,6 +266,11 @@
     <string name="member_report_reason_harass">Harassment or violence</string>
     <string name="member_report_reason_flamebait">Flamebait or meaningless content</string>
     <string name="member_report_reason_other">Other harmful content</string>
+    <string name="notification_title_with_unread">%1$s (%2$d unread)</string>
+    <string name="notification_action_thanked">thanked you:</string>
+    <string name="notification_action_replied">replied to you:</string>
+    <string name="notification_action_mentioned">mentioned you:</string>
+    <string name="notification_action_favorited">favorited your topic:</string>
 
     <string-array name="topic_report_reasons">
         <item>Spam</item>

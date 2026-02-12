@@ -8,11 +8,11 @@
 
 | 类别 | 总数 | 已完成 | 进行中 | 待开始 | 完成率 |
 |------|------|--------|--------|--------|--------|
-| **Activities** | 19 | 3 | 0 | 16 | 16% |
+| **Activities** | 19 | 5 | 0 | 14 | 26% |
 | **Fragments** | 10 | 2 | 0 | 8 | 20% |
-| **Adapters** | 12 | 2 | 0 | 10 | 16% |
+| **Adapters** | 12 | 3 | 0 | 9 | 25% |
 
-**整体进度: 17%**
+**整体进度: 24%**
 
 ### 已完成 ✅
 - **Topic Detail 页面** (参考 `jet_compose-backup-20260210` 分支)
@@ -246,24 +246,33 @@
 
 #### AllNodesActivity
 - **文件路径**: `im.fdx.v2ex.ui.node.AllNodesActivity`
-- **布局文件**: `activity_all_nodes.xml`
-- **当前实现**: XML + findViewById
+- **布局文件**: `activity_all_nodes.xml` (已删除)
+- **当前实现**: ✅ Compose
 - **复杂度**: 🟢 低
 - **功能描述**:
-  - 所有节点列表
-  - RecyclerView + AllNodesAdapter
-  - 搜索节点
-- **状态**: ⬜ 待开始
+  - 所有节点按分类展示
+  - Material3 SuggestionChip 节点网格
+  - AppBarWithSearch 集成搜索
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 中
 - **预计工时**: 1-2 天
+
+- **已落地（本次）**:
+  - 新增 `AllNodesViewModel` + `AllNodesUiState`
+  - 新增 `AllNodesScreen`（AppBarWithSearch + PullToRefresh + Chip 分组）
+  - 保留旧页面“分类 + chip”视觉风格，使用 Compose Material3 Chip 组件
+  - 支持选择模式返回 `KEY_NODE` 与普通模式跳转 `NodeActivity`
+  - 已删除旧 `activity_all_nodes.xml` / `menu_all_node.xml` / `AllNodesAdapterNew` / `SimpleNodesTextAdapter`
 
 #### AllNodesAdapter / AllNodesAdapterNew
 - **文件路径**: 
   - `im.fdx.v2ex.ui.node.AllNodesAdapter`
   - `im.fdx.v2ex.ui.node.AllNodesAdapterNew`
-- **当前实现**: RecyclerView.Adapter
+- **当前实现**:
+  - `AllNodesAdapterNew` 已删除（AllNodes 页面已不再使用 RecyclerView）
+  - `AllNodesAdapter` 仍用于 `NodeFavorFragment`（后续随 Favor 页面迁移）
 - **复杂度**: 🟢 低
-- **状态**: ⬜ 待开始
+- **状态**: 🟨 进行中
 - **优先级**: 🔥 中
 
 ---
@@ -374,15 +383,23 @@
 
 #### NotificationActivity
 - **文件路径**: `im.fdx.v2ex.ui.NotificationActivity`
-- **布局文件**: `activity_notification.xml`
-- **当前实现**: XML + findViewById
+- **布局文件**: `activity_notification.xml` (已删除)
+- **当前实现**: ✅ Compose
 - **复杂度**: 🟢 低
 - **功能描述**:
   - 通知列表
-  - RecyclerView + NotificationAdapter
-- **状态**: ⬜ 待开始
+  - LazyColumn + Compose item
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 低
 - **预计工时**: 1 天
+
+- **已落地（本次）**:
+  - 新增 `NotificationViewModel` + `NotificationUiState`
+  - 新增 `NotificationScreen`（Material3 TopAppBar + PullToRefresh）
+  - 下拉刷新内容跟随偏移，与 Topic Detail 一致
+  - 头像改为圆形，时间右对齐，分割线由列表层统一绘制
+  - 通知文案完成国际化（zh-CN / zh-TW / en）
+  - 已删除旧 `NotificationAdapter` / `activity_notification.xml` / `item_notification.xml`
 
 #### SettingsActivity
 - **文件路径**: `im.fdx.v2ex.ui.SettingsActivity`
@@ -500,7 +517,7 @@
 #### NotificationAdapter
 - **文件路径**: `im.fdx.v2ex.ui.NotificationAdapter`
 - **复杂度**: 🟢 低
-- **状态**: ⬜ 待开始
+- **状态**: ✅ 已完成（已删除，改为 Compose 列表）
 
 ---
 
@@ -767,6 +784,7 @@ TopicActivity (setContent)
 | 2026-02-10 | Assistant | 初始版本，完成页面梳理和进度规划 |
 | 2026-02-10 | Assistant | 更新：发现 `jet_compose-backup-20260210` 分支已完成 Topic Detail Compose 化，添加参考实现详情 |
 | 2026-02-12 | Assistant | 完成 Member 页面重构与清理（含国际化）；完成 Node 页面 Compose 重构、交互优化与旧代码清理 |
+| 2026-02-12 | Assistant | 完成 Notification 与 AllNodes 页面 Compose 重构及旧代码清理；统一多个列表页面分割线与间距样式 |
 
 ---
 

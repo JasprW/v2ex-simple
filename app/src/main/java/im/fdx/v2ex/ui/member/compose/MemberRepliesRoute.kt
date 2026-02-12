@@ -126,16 +126,22 @@ fun MemberRepliesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer { translationY = contentPullOffsetPx },
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 itemsIndexed(
                     items = uiState.items,
-                ) { _, reply ->
+                ) { index, reply ->
                     MemberReplyItem(
                         reply = reply,
                         onClick = { onOpenTopic(reply.topic.id) },
                     )
+                    if (index < uiState.items.lastIndex) {
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                    }
                 }
 
                 if (uiState.isLoadingMore) {
@@ -168,7 +174,7 @@ private fun MemberReplyItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -204,9 +210,6 @@ private fun MemberReplyItem(
                 },
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 

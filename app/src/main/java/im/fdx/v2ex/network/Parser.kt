@@ -535,19 +535,7 @@ class Parser(private val htmlStr: String) {
 
 
             val originalType = topicElement?.ownText()?:""
-            notification.type =
-                    when {
-                        originalType.contains("感谢了你在主题") ->
-                            "感谢了你:"
-                        originalType.contains("回复了你")
-                        -> "回复了你:"
-                        originalType.contains("提到了你")
-                        -> "提到了你:"
-                        originalType.contains("收藏了你发布的主题")
-                        -> "收藏了你发布的主题:"
-                        else -> originalType
-
-                    }
+            notification.type = originalType
 
             notificationModels.add(notification)
         }

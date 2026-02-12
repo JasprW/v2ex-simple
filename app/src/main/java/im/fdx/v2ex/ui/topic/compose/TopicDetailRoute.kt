@@ -480,6 +480,9 @@ private fun TopicDetailScreen(
                             onImageClick = onImageClick,
                         )
                     }
+                    item(key = "topic-header-divider") {
+                        HorizontalDivider(color = DividerDefaults.color)
+                    }
 
                     itemsIndexed(
                         items = uiState.replies,
@@ -494,6 +497,9 @@ private fun TopicDetailScreen(
                             onHtmlLinkClick = onHtmlLinkClick,
                             onImageClick = onImageClick,
                         )
+                        if (index < uiState.replies.lastIndex) {
+                            HorizontalDivider(color = DividerDefaults.color)
+                        }
                     }
 
                     if (uiState.isLoadingMore) {
@@ -739,9 +745,6 @@ private fun TopicHeader(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = DividerDefaults.color)
         }
     }
 }
@@ -877,9 +880,6 @@ private fun ReplyCard(
                 Text(text = replyText)
             }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-        HorizontalDivider(color = DividerDefaults.color)
     }
 }
 
@@ -1196,6 +1196,9 @@ private fun UserRepliesBottomSheet(
                     onHtmlLinkClick = onHtmlLinkClick,
                     onImageClick = onImageClick,
                 )
+                if (index < replies.lastIndex) {
+                    HorizontalDivider(color = DividerDefaults.color)
+                }
             }
         }
     }

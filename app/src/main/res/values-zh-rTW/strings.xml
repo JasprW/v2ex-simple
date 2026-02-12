@@ -217,6 +217,11 @@
     <string name="member_report_reason_harass">騷擾、暴力</string>
     <string name="member_report_reason_flamebait">引戰或無意義內容</string>
     <string name="member_report_reason_other">其他不良資訊</string>
+    <string name="notification_title_with_unread">%1$s（%2$d 則未讀）</string>
+    <string name="notification_action_thanked">感謝了你：</string>
+    <string name="notification_action_replied">回覆了你：</string>
+    <string name="notification_action_mentioned">提到了你：</string>
+    <string name="notification_action_favorited">收藏了你發佈的主題：</string>
 
     <string-array name="topic_report_reasons">
         <item>垃圾信息</item>

@@ -133,14 +133,20 @@ fun MemberTopicsScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer { translationY = contentPullOffsetPx },
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
                 ) {
-                    itemsIndexed(items = uiState.items) { _, topic ->
+                    itemsIndexed(items = uiState.items) { index, topic ->
                         MemberTopicItem(
                             topic = topic,
                             onClick = { onOpenTopic(topic.id) },
                         )
+                        if (index < uiState.items.lastIndex) {
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                            )
+                        }
                     }
 
                     if (uiState.isLoadingMore) {
@@ -174,7 +180,7 @@ private fun MemberTopicItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Text(
             text = topic.title,
@@ -206,9 +212,6 @@ private fun MemberTopicItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 

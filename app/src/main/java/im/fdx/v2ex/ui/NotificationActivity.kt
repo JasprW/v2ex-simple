@@ -1,101 +1,112 @@
 package im.fdx.v2ex.ui
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.widget.FrameLayout
-import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.material.color.MaterialColors
 import im.fdx.v2ex.R
-import im.fdx.v2ex.model.NotificationModel
-import im.fdx.v2ex.network.NetManager
-import im.fdx.v2ex.network.Parser
-import im.fdx.v2ex.network.vCall
+import im.fdx.v2ex.ui.compose.theme.V2exTheme
+import im.fdx.v2ex.ui.member.MemberActivity
+import im.fdx.v2ex.ui.notification.NotificationViewModel
+import im.fdx.v2ex.ui.notification.compose.NotificationScreen
+import im.fdx.v2ex.ui.topic.TopicActivity
 import im.fdx.v2ex.utils.Keys
-import im.fdx.v2ex.utils.extensions.initTheme
-import im.fdx.v2ex.utils.extensions.setUpToolbar
-import im.fdx.v2ex.utils.extensions.showNoContent
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
+import im.fdx.v2ex.utils.extensions.startActivity
 import im.fdx.v2ex.utils.extensions.toast
-import java.io.IOException
 
 class NotificationActivity : BaseActivity() {
 
-    private var notifications: MutableList<NotificationModel> = mutableListOf()
-    private lateinit var adapter: NotificationAdapter
-    private lateinit var mSwipe: SwipeRefreshLayout
-    private lateinit var rvNotification: RecyclerView
-    private lateinit var flContainer: FrameLayout
+    private val viewModel: NotificationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_notification)
-        applyEdgeToEdge(findViewById(android.R.id.content), findViewById(R.id.appbar_notification))
+        applyEdgeToEdgeWindow()
 
-        setUpToolbar()
-
-        flContainer = findViewById(R.id.fl_container)
-        mSwipe = findViewById(R.id.swipe_container)
-        mSwipe.initTheme()
-        mSwipe.setOnRefreshListener {
-            adapter.number = -1
-            findViewById<Toolbar>(R.id.toolbar).title = "${getString(R.string.message)} "
-            fetchNotification()
-        }
-
-        rvNotification = findViewById(R.id.rv_container)
-        rvNotification.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
-        adapter = NotificationAdapter(this, notifications)
-        rvNotification.adapter = adapter
-        parseIntent(intent)
-    }
-
-    private fun parseIntent(intent: Intent) {
-        val numUnread = intent.getIntExtra(Keys.KEY_UNREAD_COUNT, -1)
-        adapter.number = numUnread
-        findViewById<Toolbar>(R.id.toolbar).title = "${getString(R.string.message)} " +
-                if (numUnread != -1) "($numUnread 条未读)" else ""
-        mSwipe.isRefreshing = true
-        fetchNotification()
-    }
-
-    private fun fetchNotification() {
-        val url = "https://www.v2ex.com/notifications"
-        vCall(url).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                NetManager.dealError(this@NotificationActivity, swipe = mSwipe)
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-
-                when (response.code) {
-                    302 -> runOnUiThread {
-                        toast("您未登录或登录信息已过时，请重新登录")
-                    }
-                    200 -> {
-                        val c = Parser(response.body!!.string()).parseToNotifications()
-                        if (c.isEmpty()) {
-                            runOnUiThread {
-                                mSwipe.isRefreshing = false
-                                flContainer.showNoContent()
-                            }
-                            return
-                        }
-                        notifications.clear()
-                        notifications.addAll(c)
-                        runOnUiThread {
-                            adapter.notifyDataSetChanged()
-                            mSwipe.isRefreshing = false
-                        }
-                    }
-                    else -> NetManager.dealError(this@NotificationActivity, response.code, mSwipe)
+        val unread = intent.getIntExtra(Keys.KEY_UNREAD_COUNT, -1)
+        viewModel.initUnread(unread)
+        viewModel.refresh(
+            onNeedLogin = { toast(getString(R.string.error_auth_failure)) },
+            onErrorCode = { code ->
+                if (code <= 0) {
+                    im.fdx.v2ex.network.NetManager.dealError(this)
+                } else {
+                    im.fdx.v2ex.network.NetManager.dealError(this, errorCode = code)
                 }
-            }
-        })
+            },
+        )
 
+        setContent {
+            V2exTheme {
+                val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+                val title = if (uiState.unreadCount != -1) {
+                    getString(R.string.notification_title_with_unread, getString(R.string.message), uiState.unreadCount)
+                } else {
+                    getString(R.string.message)
+                }
+                NotificationScreen(
+                    title = title,
+                    unreadCount = uiState.unreadCount,
+                    notifications = uiState.notifications,
+                    isRefreshing = uiState.isLoading,
+                    isEmpty = uiState.isEmpty,
+                    onBack = { finish() },
+                    onRefresh = {
+                        viewModel.refresh(
+                            onNeedLogin = { toast(getString(R.string.error_auth_failure)) },
+                            onErrorCode = { code ->
+                                if (code <= 0) {
+                                    im.fdx.v2ex.network.NetManager.dealError(this)
+                                } else {
+                                    im.fdx.v2ex.network.NetManager.dealError(this, errorCode = code)
+                                }
+                            },
+                        )
+                    },
+                    onOpenTopic = { model ->
+                        model.topic?.id?.takeIf { it.isNotBlank() }?.let {
+                            startActivity<TopicActivity>(Keys.KEY_TOPIC_ID to it)
+                        }
+                    },
+                    onOpenMember = { model ->
+                        model.member?.username?.takeIf { it.isNotBlank() }?.let {
+                            startActivity<MemberActivity>(Keys.KEY_USERNAME to it)
+                        }
+                    },
+                )
+            }
+        }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val unread = intent.getIntExtra(Keys.KEY_UNREAD_COUNT, -1)
+        viewModel.initUnread(unread)
+        viewModel.refresh(
+            onNeedLogin = { toast(getString(R.string.error_auth_failure)) },
+            onErrorCode = { code ->
+                if (code <= 0) {
+                    im.fdx.v2ex.network.NetManager.dealError(this)
+                } else {
+                    im.fdx.v2ex.network.NetManager.dealError(this, errorCode = code)
+                }
+            },
+        )
+    }
+
+    private fun applyEdgeToEdgeWindow() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val surfaceColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.5f
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
+    }
 }
