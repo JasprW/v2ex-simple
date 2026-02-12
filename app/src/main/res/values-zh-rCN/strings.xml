@@ -192,6 +192,31 @@
     <string name="topic_error_retry">发生错误，请重试</string>
     <string name="topic_report_topic_template">该帖子涉及%1$s @Livid</string>
     <string name="topic_report_reply_template">#%1$d 该评论涉及%2$s @Livid</string>
+    <string name="node_open_failed">打开节点失败</string>
+    <string name="node_unavailable">无法访问该节点</string>
+    <string name="node_wait_for_loading">请等待节点信息加载</string>
+    <string name="node_follow_success">关注成功</string>
+    <string name="node_unfollow_success">取消关注成功</string>
+    <string name="node_topics_count">主题数 %1$s</string>
+    <string name="node_reply_count">回复 %1$d</string>
+    <string name="member_open_failed">无法打开用户资料</string>
+    <string name="member_wait_profile_loading">请等待用户信息加载</string>
+    <string name="member_report_title">报告用户 %1$s</string>
+    <string name="member_report_body">用户首页：https://www.v2ex.com/member/%1$s\n该用户可能涉及：%2$s，请站长处理。</string>
+    <string name="member_joined_description">加入于 %1$s，第 %2$s 号会员</string>
+    <string name="member_tab_topics">主题</string>
+    <string name="member_tab_replies">回复</string>
+    <string name="member_reply_count">回复 %1$d</string>
+    <string name="member_link_location">位置</string>
+    <string name="member_link_twitter">Twitter</string>
+    <string name="member_link_github">GitHub</string>
+    <string name="member_link_bitcoin">比特币</string>
+    <string name="member_link_website">网站</string>
+    <string name="member_report_reason_spam">垃圾信息</string>
+    <string name="member_report_reason_fake_ad">虚假广告</string>
+    <string name="member_report_reason_harass">骚扰，暴力</string>
+    <string name="member_report_reason_flamebait">引战 无意义</string>
+    <string name="member_report_reason_other">其他不良信息</string>
 
     <string-array name="topic_report_reasons">
         <item>垃圾信息</item>

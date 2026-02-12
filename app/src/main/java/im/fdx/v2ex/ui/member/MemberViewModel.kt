@@ -3,6 +3,7 @@ package im.fdx.v2ex.ui.member
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
+import im.fdx.v2ex.R
 import im.fdx.v2ex.myApp
 import im.fdx.v2ex.network.NetManager
 import im.fdx.v2ex.network.NetManager.API_USER
@@ -43,15 +44,13 @@ class MemberViewModel : ViewModel() {
 
     fun updateTabCount(index: Int, count: String) {
         val state = _uiState.value
-        if (index !in state.tabs.indices) return
-        val base = DEFAULT_MEMBER_TABS[index]
-        val updated = state.tabs.toMutableList().apply {
-            this[index] = "$base ($count)"
+        _uiState.value = when (index) {
+            0 -> state.copy(topicCount = count)
+            else -> state.copy(replyCount = count)
         }
-        _uiState.value = state.copy(tabs = updated)
     }
 
-    fun toggleFollow(onNeedLogin: () -> Unit, onMessage: (String) -> Unit) {
+    fun toggleFollow(onNeedLogin: () -> Unit, onMessageRes: (Int) -> Unit) {
         val state = _uiState.value
         if (!myApp.isLogin) {
             onNeedLogin()
@@ -59,7 +58,7 @@ class MemberViewModel : ViewModel() {
         }
         val token = state.followTokenPath
         if (token.isNullOrBlank()) {
-            onMessage("请等待用户信息获取")
+            onMessageRes(R.string.member_wait_profile_loading)
             return
         }
 
@@ -73,14 +72,14 @@ class MemberViewModel : ViewModel() {
                 if (response.code == 302) {
                     loadByHtml(state.username)
                     mainHandler.post {
-                        onMessage("${if (state.isFollowed) "取消" else ""}关注成功")
+                        onMessageRes(if (state.isFollowed) R.string.node_unfollow_success else R.string.node_follow_success)
                     }
                 }
             }
         })
     }
 
-    fun toggleBlock(onNeedLogin: () -> Unit, onMessage: (String) -> Unit) {
+    fun toggleBlock(onNeedLogin: () -> Unit, onMessageRes: (Int) -> Unit) {
         val state = _uiState.value
         if (!myApp.isLogin) {
             onNeedLogin()
@@ -88,7 +87,7 @@ class MemberViewModel : ViewModel() {
         }
         val token = state.blockTokenPath
         if (token.isNullOrBlank()) {
-            onMessage("请等待用户信息获取")
+            onMessageRes(R.string.member_wait_profile_loading)
             return
         }
 
@@ -102,7 +101,7 @@ class MemberViewModel : ViewModel() {
                 if (response.code == 302) {
                     loadByHtml(state.username)
                     mainHandler.post {
-                        onMessage(if (state.isBlocked) "你已取消屏蔽该用户" else "屏蔽成功，你将无法看到该用户的帖子和评论")
+                        onMessageRes(if (state.isBlocked) R.string.topic_unblock_success else R.string.topic_block_success)
                     }
                 }
             }

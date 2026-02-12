@@ -33,12 +33,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import im.fdx.v2ex.R
 import im.fdx.v2ex.ui.compose.theme.V2exTheme
 import im.fdx.v2ex.ui.main.Topic
 import kotlinx.coroutines.flow.collectLatest
@@ -199,7 +201,7 @@ private fun MemberTopicItem(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "回复 ${topic.replies ?: 0}",
+                text = stringResource(id = R.string.member_reply_count, topic.replies ?: 0),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -47,10 +47,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import im.fdx.v2ex.R
 import im.fdx.v2ex.ui.compose.theme.V2exTheme
 
 data class MemberProfileUiModel(
@@ -101,7 +103,7 @@ fun MemberScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回",
+                            contentDescription = stringResource(id = R.string.topic_action_back),
                         )
                     }
                 },
@@ -110,14 +112,14 @@ fun MemberScreen(
                         IconButton(onClick = onToggleFollow) {
                             Icon(
                                 imageVector = if (isFollowed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                contentDescription = if (isFollowed) "取消关注" else "关注",
+                                contentDescription = if (isFollowed) stringResource(id = R.string.unfollow) else stringResource(id = R.string.follow),
                             )
                         }
                         Box {
                             IconButton(onClick = { actionExpanded = true }) {
                                 Icon(
                                     imageVector = Icons.Filled.MoreVert,
-                                    contentDescription = "更多操作",
+                                    contentDescription = stringResource(id = R.string.topic_action_more),
                                 )
                             }
                             DropdownMenu(
@@ -125,7 +127,7 @@ fun MemberScreen(
                                 onDismissRequest = { actionExpanded = false },
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("${if (isBlocked) "取消" else ""}屏蔽") },
+                                    text = { Text(if (isBlocked) stringResource(id = R.string.cancel_block) else stringResource(id = R.string.block)) },
                                     leadingIcon = {
                                         Icon(imageVector = Icons.Filled.Block, contentDescription = null)
                                     },
@@ -135,7 +137,7 @@ fun MemberScreen(
                                     },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("举报") },
+                                    text = { Text(stringResource(id = R.string.report_abuse)) },
                                     leadingIcon = {
                                         Icon(imageVector = Icons.Filled.Report, contentDescription = null)
                                     },
@@ -214,7 +216,7 @@ private fun MemberProfileCard(
                 Box {
                     AsyncImage(
                         model = model.avatarUrl,
-                        contentDescription = "用户头像",
+                        contentDescription = stringResource(id = R.string.profile),
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape),
@@ -265,11 +267,11 @@ private fun MemberProfileCard(
             }
 
             val linkItems = buildList {
-                if (!model.location.isNullOrBlank()) add(LinkAction(Icons.Filled.LocationOn, onOpenLocation, "位置"))
-                if (!model.twitter.isNullOrBlank()) add(LinkAction(Icons.Filled.Tag, onOpenTwitter, "Twitter"))
-                if (!model.github.isNullOrBlank()) add(LinkAction(Icons.Filled.Code, onOpenGithub, "GitHub"))
-                if (!model.btc.isNullOrBlank()) add(LinkAction(Icons.Filled.TravelExplore, onOpenBitcoin, "Bitcoin"))
-                if (!model.website.isNullOrBlank()) add(LinkAction(Icons.Filled.Language, onOpenWebsite, "网站"))
+                if (!model.location.isNullOrBlank()) add(LinkAction(Icons.Filled.LocationOn, onOpenLocation, stringResource(id = R.string.member_link_location)))
+                if (!model.twitter.isNullOrBlank()) add(LinkAction(Icons.Filled.Tag, onOpenTwitter, stringResource(id = R.string.member_link_twitter)))
+                if (!model.github.isNullOrBlank()) add(LinkAction(Icons.Filled.Code, onOpenGithub, stringResource(id = R.string.member_link_github)))
+                if (!model.btc.isNullOrBlank()) add(LinkAction(Icons.Filled.TravelExplore, onOpenBitcoin, stringResource(id = R.string.member_link_bitcoin)))
+                if (!model.website.isNullOrBlank()) add(LinkAction(Icons.Filled.Language, onOpenWebsite, stringResource(id = R.string.member_link_website)))
             }
 
             if (linkItems.isNotEmpty()) {

@@ -179,12 +179,26 @@ class Parser(private val htmlStr: String) {
             val avatarLarge = header.getElementsByTag("img").first()?.attr("src")
             nodeModel.avatar_normal = avatarLarge?.replace("xxxlarge", "normal")?.replace("xxlarge", "normal")
         }
-        val number = header?.getElementsByTag("strong")?.first()?.text()
+        val number = header
+            ?.getElementsByTag("strong")
+            ?.firstOrNull { it.text().getNum().isNotBlank() }
+            ?.text()
         val content = header?.getElementsByClass("intro")?.first()?.text()?:""
         val strTitle = header?.getElementsByClass("node-breadcrumb")?.first()?.ownText()?.trim()?:""
+        val topicsFromHeader = number?.getNum()?.toIntOrNull()
+        val topicsFromHeaderText = Regex("主题总数\\D*(\\d[\\d,]*)").find(header?.text().orEmpty())
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.replace(",", "")
+            ?.toIntOrNull()
+        val topicsFromFooter = Regex("共\\s*(\\d[\\d,]*)\\s*个主题").find(htmlStr)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.replace(",", "")
+            ?.toIntOrNull()
         nodeModel.name = nodeName
         nodeModel.title = strTitle
-        nodeModel.topics = number?.toIntOrNull()?:0
+        nodeModel.topics = topicsFromHeader ?: topicsFromHeaderText ?: topicsFromFooter ?: 0
         nodeModel.header = content
 
         return nodeModel

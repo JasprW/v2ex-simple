@@ -8,11 +8,11 @@
 
 | 类别 | 总数 | 已完成 | 进行中 | 待开始 | 完成率 |
 |------|------|--------|--------|--------|--------|
-| **Activities** | 19 | 1 | 1 | 17 | 5% |
-| **Fragments** | 10 | 1 | 0 | 9 | 10% |
-| **Adapters** | 12 | 1 | 0 | 11 | 8% |
+| **Activities** | 19 | 3 | 0 | 16 | 16% |
+| **Fragments** | 10 | 2 | 0 | 8 | 20% |
+| **Adapters** | 12 | 2 | 0 | 10 | 16% |
 
-**整体进度: 7%**
+**整体进度: 17%**
 
 ### 已完成 ✅
 - **Topic Detail 页面** (参考 `jet_compose-backup-20260210` 分支)
@@ -157,7 +157,7 @@
 
 #### MemberActivity
 - **文件路径**: `im.fdx.v2ex.ui.member.MemberActivity`
-- **布局文件**: `activity_member.xml` (保留，待验收后删除)
+- **布局文件**: `activity_member.xml` (已删除)
 - **当前实现**: Compose + AndroidView (Hybrid)
 - **复杂度**: 🟡 中
 - **功能描述**:
@@ -167,8 +167,8 @@
   - 用户头像、简介、统计数据
 - **改造难点**:
   - 后续将 ViewPager2/Fragment 替换为纯 Compose 列表
-- **依赖页面**: UserReplyFragment, ReplyAdapter, TopicsFragment
-- **状态**: 🟨 进行中
+- **依赖页面**: MemberTopicComposeFragment, MemberReplyComposeFragment
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 中
 - **预计工时**: 2-3 天
 
@@ -180,16 +180,18 @@
   - 主题 Tab 改为 `MemberTopicComposeFragment` + `MemberTopicsRoute`
   - 回复 Tab 改为 `MemberReplyComposeFragment` + `MemberRepliesRoute`
   - 保留 ViewPager2 作为过渡容器，确保功能与布局一致
+  - Member 页面文案完成国际化（zh-CN / zh-TW / en）
+  - 已删除旧 `activity_member.xml`
 
 #### UserReplyFragment
 - **文件路径**: `im.fdx.v2ex.ui.member.UserReplyFragment`
-- **布局文件**: `fragment_user_reply.xml`
-- **当前实现**: XML + ViewBinding（已由 Compose Fragment 接管，待删除）
+- **布局文件**: `fragment_user_reply.xml` (已删除)
+- **当前实现**: 已由 `MemberReplyComposeFragment` + `MemberRepliesRoute` 替代
 - **复杂度**: 🟢 低
 - **功能描述**:
   - 用户回复列表
   - RecyclerView + ReplyAdapter
-- **状态**: 🟨 进行中
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 中 (跟随 MemberActivity)
 - **预计工时**: 1 天
 
@@ -206,10 +208,10 @@
 
 #### ReplyAdapter
 - **文件路径**: `im.fdx.v2ex.ui.member.ReplyAdapter`
-- **当前实现**: RecyclerView.Adapter（仅保留兼容，待删除）
+- **当前实现**: 旧 RecyclerView.Adapter 已删除
 - **复杂度**: 🟢 低
 - **改造方案**: 已由 `MemberRepliesScreen` 的 `LazyColumn` 替代
-- **状态**: 🟨 进行中
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 中
 - **预计工时**: 0.5 天
 
@@ -219,8 +221,8 @@
 
 #### NodeActivity
 - **文件路径**: `im.fdx.v2ex.ui.node.NodeActivity`
-- **布局文件**: `activity_node.xml`
-- **当前实现**: XML + ViewBinding
+- **布局文件**: `activity_node.xml` (已删除)
+- **当前实现**: ✅ Compose
 - **复杂度**: 🟡 中
 - **功能描述**:
   - 节点详情页面
@@ -228,10 +230,19 @@
   - 关注/取消关注节点
 - **改造难点**:
   - 主题列表转为 LazyColumn
-  - 节点头部信息卡片化
-- **状态**: ⬜ 待开始
+  - 下拉刷新与列表滚动协同
+- **状态**: ✅ 已完成
 - **优先级**: 🔥 中
 - **预计工时**: 2 天
+
+- **已落地（本次）**:
+  - 新增 `NodeViewModel` + `NodeUiState`
+  - 新增 `NodeScreen`（TopAppBar + 内容区节点信息 + LazyColumn）
+  - 节点列表支持 Material3 PullToRefresh + 分页加载
+  - 回复数展示改为右对齐 `icon + 数字`
+  - Node 页面文案完成国际化（zh-CN / zh-TW / en）
+  - FAB 跳转发帖页自动预选当前 node
+  - 已删除旧 `activity_node.xml` / `menu_node.xml`
 
 #### AllNodesActivity
 - **文件路径**: `im.fdx.v2ex.ui.node.AllNodesActivity`
@@ -755,6 +766,7 @@ TopicActivity (setContent)
 |------|--------|------|
 | 2026-02-10 | Assistant | 初始版本，完成页面梳理和进度规划 |
 | 2026-02-10 | Assistant | 更新：发现 `jet_compose-backup-20260210` 分支已完成 Topic Detail Compose 化，添加参考实现详情 |
+| 2026-02-12 | Assistant | 完成 Member 页面重构与清理（含国际化）；完成 Node 页面 Compose 重构、交互优化与旧代码清理 |
 
 ---
 

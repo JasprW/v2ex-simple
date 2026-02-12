@@ -96,6 +96,7 @@ class NewTopicActivity : BaseActivity() {
     }
 
     private fun parseIntent(intent: Intent) {
+        applyPresetNode(intent)
         val action = intent.action
         val type = intent.type
         if (Intent.ACTION_SEND == action && type != null) {
@@ -111,6 +112,26 @@ class NewTopicActivity : BaseActivity() {
             mNodename = "feedback"
             binding.searchSpinnerNode.text = "feedback | 反馈"
             binding.searchSpinnerNode.isClickable = false
+        }
+    }
+
+    private fun applyPresetNode(intent: Intent) {
+        val presetNode = intent.getParcelableExtra<Node>(Keys.KEY_NODE)
+        if (presetNode != null && presetNode.name.isNotBlank()) {
+            mNodename = presetNode.name
+            val title = presetNode.title
+            binding.searchSpinnerNode.text = if (title.isNotBlank()) {
+                "${presetNode.name} | $title"
+            } else {
+                presetNode.name
+            }
+            return
+        }
+
+        val presetNodeName = intent.getStringExtra(Keys.KEY_NODE_NAME)
+        if (!presetNodeName.isNullOrBlank()) {
+            mNodename = presetNodeName
+            binding.searchSpinnerNode.text = presetNodeName
         }
     }
 

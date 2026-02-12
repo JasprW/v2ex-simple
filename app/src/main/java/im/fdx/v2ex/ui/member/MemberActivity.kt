@@ -52,7 +52,7 @@ class MemberActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         val username = getName(intent)
         if (username.isNullOrBlank()) {
-            toast("未知问题，无法访问用户信息")
+            toast(getString(R.string.member_open_failed))
             finish()
             return
         }
@@ -69,13 +69,13 @@ class MemberActivity : BaseActivity() {
                     onToggleFollow = {
                         viewModel.toggleFollow(
                             onNeedLogin = { requireLogin() },
-                            onMessage = { toast(it) },
+                            onMessageRes = { toast(getString(it)) },
                         )
                     },
                     onToggleBlock = {
                         viewModel.toggleBlock(
                             onNeedLogin = { requireLogin() },
-                            onMessage = { toast(it) },
+                            onMessageRes = { toast(getString(it)) },
                         )
                     },
                     onReport = { reportAbuse() },
@@ -136,16 +136,24 @@ class MemberActivity : BaseActivity() {
         val member = state.member
         val username = state.username
         if (member == null || username.isBlank()) {
-            toast("请等待用户信息获取")
+            toast(getString(R.string.member_wait_profile_loading))
             return
         }
         BottomSheetMenu(this)
-            .setTitle("请选择举报的理由")
-            .addItems(listOf("大量发布广告", "冒充他人", "疑似机器帐号", "儿童安全", "其他")) { _, reason ->
+            .setTitle(getString(R.string.topic_select_reason))
+            .addItems(
+                listOf(
+                    getString(R.string.member_report_reason_spam),
+                    getString(R.string.member_report_reason_fake_ad),
+                    getString(R.string.member_report_reason_harass),
+                    getString(R.string.member_report_reason_flamebait),
+                    getString(R.string.member_report_reason_other),
+                ),
+            ) { _, reason ->
                 startActivity(Intent(this, NewTopicActivity::class.java).apply {
                     action = Keys.ACTION_V2EX_REPORT
-                    putExtra(Intent.EXTRA_TITLE, "报告用户 ${member.username} ")
-                    putExtra(Intent.EXTRA_TEXT, "用户首页：https://www.v2ex.com/member/$username \n 该用户涉及 $reason，请站长请处理")
+                    putExtra(Intent.EXTRA_TITLE, getString(R.string.member_report_title, member.username))
+                    putExtra(Intent.EXTRA_TEXT, getString(R.string.member_report_body, username, reason))
                 })
             }
             .show()
@@ -257,7 +265,7 @@ private class MemberViewPagerAdapter(
     private val avatar: String,
 ) : FragmentStateAdapter(fa) {
 
-    override fun getItemCount(): Int = DEFAULT_MEMBER_TABS.size
+    override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {

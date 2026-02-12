@@ -241,6 +241,31 @@
     <string name="topic_error_retry">Something went wrong. Please try again</string>
     <string name="topic_report_topic_template">This topic involves %1$s @Livid</string>
     <string name="topic_report_reply_template">#%1$d This reply involves %2$s @Livid</string>
+    <string name="node_open_failed">Failed to open node</string>
+    <string name="node_unavailable">Unable to access this node</string>
+    <string name="node_wait_for_loading">Please wait until node info is loaded</string>
+    <string name="node_follow_success">Followed successfully</string>
+    <string name="node_unfollow_success">Unfollowed successfully</string>
+    <string name="node_topics_count">Topics %1$s</string>
+    <string name="node_reply_count">Replies %1$d</string>
+    <string name="member_open_failed">Unable to open member profile</string>
+    <string name="member_wait_profile_loading">Please wait until profile is loaded</string>
+    <string name="member_report_title">Report user %1$s</string>
+    <string name="member_report_body">Profile URL: https://www.v2ex.com/member/%1$s\nThis user may involve: %2$s. Please review.</string>
+    <string name="member_joined_description">Joined on %1$s, member #%2$s</string>
+    <string name="member_tab_topics">Topics</string>
+    <string name="member_tab_replies">Replies</string>
+    <string name="member_reply_count">Replies %1$d</string>
+    <string name="member_link_location">Location</string>
+    <string name="member_link_twitter">Twitter</string>
+    <string name="member_link_github">GitHub</string>
+    <string name="member_link_bitcoin">Bitcoin</string>
+    <string name="member_link_website">Website</string>
+    <string name="member_report_reason_spam">Spam</string>
+    <string name="member_report_reason_fake_ad">False advertising</string>
+    <string name="member_report_reason_harass">Harassment or violence</string>
+    <string name="member_report_reason_flamebait">Flamebait or meaningless content</string>
+    <string name="member_report_reason_other">Other harmful content</string>
 
     <string-array name="topic_report_reasons">
         <item>Spam</item>

@@ -10,7 +10,6 @@ data class MemberUiState(
     val isOnline: Boolean = false,
     val blockTokenPath: String? = null,
     val followTokenPath: String? = null,
-    val tabs: List<String> = DEFAULT_MEMBER_TABS,
+    val topicCount: String? = null,
+    val replyCount: String? = null,
 )
-
-val DEFAULT_MEMBER_TABS = listOf("主题", "回复")

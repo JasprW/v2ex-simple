@@ -4,129 +4,106 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import androidx.core.os.bundleOf
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.color.MaterialColors
+import im.fdx.v2ex.BuildConfig
 import im.fdx.v2ex.MyApp
 import im.fdx.v2ex.R
-import im.fdx.v2ex.databinding.ActivityNodeBinding
-import im.fdx.v2ex.myApp
-import im.fdx.v2ex.network.HttpHelper
-import im.fdx.v2ex.network.NetManager
-import im.fdx.v2ex.network.Parser
-import im.fdx.v2ex.network.vCall
 import im.fdx.v2ex.ui.BaseActivity
+import im.fdx.v2ex.ui.compose.theme.V2exTheme
 import im.fdx.v2ex.ui.main.NewTopicActivity
-import im.fdx.v2ex.ui.main.TopicsFragment
+import im.fdx.v2ex.ui.topic.TopicActivity
+import im.fdx.v2ex.ui.node.compose.NodeScreen
 import im.fdx.v2ex.utils.Keys
-import im.fdx.v2ex.utils.extensions.*
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Request
-import okhttp3.Response
+import im.fdx.v2ex.utils.extensions.showLoginHint
 import im.fdx.v2ex.utils.extensions.startActivity
 import im.fdx.v2ex.utils.extensions.toast
-import java.io.IOException
-import kotlin.math.abs
-
 
 class NodeActivity : BaseActivity() {
 
-    private var token: String? = null
-    private var isFollowed = false
+    private val viewModel: NodeViewModel by viewModels()
     private lateinit var nodeName: String
-    private var mNode: Node? = null
-    private lateinit var mMenu: Menu
 
-    val receiver = object : BroadcastReceiver() {
+    private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-
-            when (intent.action) {
-                Keys.ACTION_LOGIN -> {
-                    getNodeInfo()
-                }
+            if (intent.action == Keys.ACTION_LOGIN) {
+                reloadNode()
             }
         }
     }
 
-    private lateinit var binding: ActivityNodeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityNodeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        applyEdgeToEdge(binding.root, binding.appbarNode)
-        setUpToolbar()
-        supportActionBar?.setDisplayShowTitleEnabled(false) //很关键，不会一闪而过一个东西
+        nodeName = when {
+            intent.data != null -> intent.data!!.pathSegments.getOrNull(1).orEmpty()
+            !intent.getStringExtra(Keys.KEY_NODE_NAME).isNullOrBlank() -> intent.getStringExtra(Keys.KEY_NODE_NAME).orEmpty()
+            BuildConfig.DEBUG -> "android"
+            else -> ""
+        }
+        if (nodeName.isBlank()) {
+            toast(getString(R.string.node_open_failed))
+            finish()
+            return
+        }
 
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(Keys.ACTION_LOGIN))
 
-        binding.appbarNode.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout1, verticalOffset ->
-            val maxScroll = appBarLayout1.totalScrollRange
-            val percentage = abs(verticalOffset).toDouble() / maxScroll.toDouble()
-            handleAlphaOnTitle(binding.rlNodeHeader, binding.divider, percentage.toFloat())
-        })
+        applyEdgeToEdgeWindow()
+        reloadNode()
 
-        binding.fabNode.setOnClickListener {
-            startActivity<NewTopicActivity>(Keys.KEY_NODE_NAME to nodeName)
-        }
-
-        if (!MyApp.get().isLogin) {
-            binding.fabNode.hide()
-        }
-
-        nodeName = when {
-            intent.data != null -> intent.data!!.pathSegments[1]
-            intent.getStringExtra(Keys.KEY_NODE_NAME) != null -> intent.getStringExtra(Keys.KEY_NODE_NAME)!!
-            else -> ""
-        }
-
-        if (nodeName.isEmpty()) {
-            toast("打开节点失败")
-            finish()
-            return
-        }
-        getNodeInfo()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_node, menu)
-        mMenu = menu!!
-        menu.findItem(R.id.menu_follow)?.isVisible = false
-        return true
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_follow -> {
-                switchFollowAndRefresh(isFollowed)
+        setContent {
+            V2exTheme {
+                val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+                NodeScreen(
+                    uiState = uiState,
+                    showFollow = MyApp.get().isLogin,
+                    showFab = MyApp.get().isLogin,
+                    onBack = { finish() },
+                    onToggleFollow = {
+                        viewModel.toggleFollow(
+                            onNeedLogin = { showLoginHint(findViewById(android.R.id.content)) },
+                            onDone = { wasFollowed ->
+                                reloadNode()
+                                toast(
+                                    getString(
+                                        if (wasFollowed) {
+                                            R.string.node_unfollow_success
+                                        } else {
+                                            R.string.node_follow_success
+                                        },
+                                    ),
+                                )
+                            },
+                            onError = { code, message -> dealNodeError(code, message) },
+                        )
+                    },
+                    onRefresh = { reloadNode() },
+                    onLoadMore = {
+                        viewModel.loadMore(
+                            onNeedLogin = { showLoginHint(findViewById(android.R.id.content)) },
+                            onError = { code, message -> dealNodeError(code, message) },
+                        )
+                    },
+                    onTopicClick = { topicId ->
+                        startActivity<TopicActivity>(Keys.KEY_TOPIC_ID to topicId)
+                    },
+                    onNewTopic = {
+                        startActivity<NewTopicActivity>(
+                            Keys.KEY_NODE_NAME to nodeName,
+                            Keys.KEY_NODE to uiState.node,
+                        )
+                    },
+                )
             }
         }
-        return true
-    }
-
-    private fun switchFollowAndRefresh(isFavorite: Boolean) {
-        HttpHelper.OK_CLIENT.newCall(
-            Request.Builder()
-                .url("${NetManager.HTTPS_V2EX_BASE}/${if (isFavorite) "un" else ""}$token")
-                .build()
-        ).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                NetManager.dealError(this@NodeActivity)
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-                if (response.code == 302) {
-                    getNodeInfo()
-                    runOnUiThread { toast("${if (isFavorite) "取消" else ""}关注成功") }
-                }
-            }
-        })
     }
 
     override fun onDestroy() {
@@ -134,74 +111,43 @@ class NodeActivity : BaseActivity() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
     }
 
-    private fun getNodeInfo() {
-        val requestURL = "${NetManager.HTTPS_V2EX_BASE}/go/$nodeName?p=1"
-        logd("url:$requestURL")
-        vCall(requestURL).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                NetManager.dealError(this@NodeActivity)
-            }
+    private fun reloadNode() {
+        viewModel.loadNode(
+            nodeName = nodeName,
+            onNeedLogin = { showLoginHint(findViewById(android.R.id.content)) },
+            onError = { code, message -> dealNodeError(code, message) },
+        )
+    }
 
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: okhttp3.Response) {
-                val code = response.code
-                if (code == 302) {
-                    if (myApp.isLogin) {
-                        runOnUiThread {
-                            toast("无法访问该节点")
-                        }
-                    } else {
-                        showLoginHint(binding.root)
-                    }
-                    return
-                } else if (code != 200) {
-                    NetManager.dealError(this@NodeActivity, errorCode = code)
-                    return
-                }
+    private fun dealNodeError(code: Int, message: String?) {
+        if (!message.isNullOrBlank()) {
+            toast(message)
+            return
+        }
+        if (code == -2) {
+            toast(getString(R.string.node_wait_for_loading))
+            return
+        }
+        if (code == 302) {
+            toast(getString(R.string.node_unavailable))
+            return
+        }
+        if (code <= 0) {
+            im.fdx.v2ex.network.NetManager.dealError(this)
+        } else {
+            im.fdx.v2ex.network.NetManager.dealError(this, errorCode = code)
+        }
+    }
 
-                val html = response.body?.string()!!
-                val parser = Parser(html)
-
-                val topicList = parser.parseTopicLists(Parser.Source.FROM_NODE)
-
-                val pageNum = parser.getTotalPageForTopics()
-                try {
-                    mNode = parser.getNodeInfo(nodeName)
-                } catch (e: Exception) {
-                    NetManager.dealError(this@NodeActivity, errorMsg = e.message ?: "unknown error")
-                }
-
-                isFollowed = parser.isNodeFollowed()
-                token = parser.getOnce()
-                runOnUiThread {
-
-                    if (isFinishing || isDestroyed) {
-                        return@runOnUiThread
-                    }
-                    supportFragmentManager.beginTransaction()
-                        .add(R.id.fragment_container, TopicsFragment().apply {
-                            arguments = bundleOf(
-                                Keys.KEY_NODE_NAME to nodeName,
-                                Keys.KEY_TOPIC_LIST to topicList,
-                                Keys.KEY_PAGE_NUM to pageNum
-                            )
-                        }, "MyActivity")
-                        .commitAllowingStateLoss()
-                    binding.ivNodeImage.load(mNode?.avatarLargeUrl)
-                    binding.ctlNode.title = mNode?.title
-                    binding.tvNodeDetails.text = mNode?.header
-                    binding.tvTopicNum.text = getString(R.string.topic_number, mNode?.topics)
-                    if (MyApp.get().isLogin) {
-                        mMenu.findItem(R.id.menu_follow)?.isVisible = true
-                    }
-                    if (isFollowed) {
-                        mMenu.findItem(R.id.menu_follow).setIcon(R.drawable.ic_favorite_blue_24dp)
-                    } else {
-                        mMenu.findItem(R.id.menu_follow)
-                            .setIcon(R.drawable.ic_favorite_border_white_24dp)
-                    }
-                }
-            }
-        })
+    private fun applyEdgeToEdgeWindow() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val surfaceColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.5f
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
     }
 }
