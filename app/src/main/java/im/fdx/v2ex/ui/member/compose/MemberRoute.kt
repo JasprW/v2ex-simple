@@ -2,46 +2,66 @@ package im.fdx.v2ex.ui.member.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import im.fdx.v2ex.ui.member.MemberViewModel
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import im.fdx.v2ex.ui.member.MemberUiState
+import im.fdx.v2ex.utils.TimeUtil
 
-/**
- * Member 页面的路由组件
- * 连接 ViewModel 和 UI
- */
 @Composable
 fun MemberRoute(
-    onNavigateBack: () -> Unit,
-    onTopicClick: (String) -> Unit,
-    onReportClick: (String, String) -> Unit,
-    onShowLoginHint: () -> Unit,
-    viewModel: MemberViewModel = viewModel(),
+    uiState: MemberUiState,
+    onBack: () -> Unit,
+    onToggleFollow: () -> Unit,
+    onToggleBlock: () -> Unit,
+    onReport: () -> Unit,
+    onOpenLocation: () -> Unit,
+    onOpenGithub: () -> Unit,
+    onOpenTwitter: () -> Unit,
+    onOpenWebsite: () -> Unit,
+    onOpenBitcoin: () -> Unit,
+    pagerContent: @Composable (selectedTab: Int, onTabChanged: (Int) -> Unit) -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val repliesState by viewModel.repliesState.collectAsStateWithLifecycle()
-    val topicsState by viewModel.topicsState.collectAsStateWithLifecycle()
-    val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     MemberScreen(
-        uiState = uiState,
-        repliesState = repliesState,
-        topicsState = topicsState,
+        uiModel = uiState.toUiModel(),
+        tabs = uiState.tabs,
         selectedTab = selectedTab,
-        onNavigateBack = onNavigateBack,
-        onTopicClick = onTopicClick,
-        onReportClick = onReportClick,
-        onShowLoginHint = onShowLoginHint,
-        onToggleFollow = { message ->
-            // 显示 Toast 或 Snackbar
+        isFollowed = uiState.isFollowed,
+        isBlocked = uiState.isBlocked,
+        showRelationActions = !uiState.isMe,
+        onBack = onBack,
+        onSelectTab = { selectedTab = it },
+        onToggleFollow = onToggleFollow,
+        onToggleBlock = onToggleBlock,
+        onReport = onReport,
+        onOpenLocation = onOpenLocation,
+        onOpenGithub = onOpenGithub,
+        onOpenTwitter = onOpenTwitter,
+        onOpenWebsite = onOpenWebsite,
+        onOpenBitcoin = onOpenBitcoin,
+        pagerContent = {
+            pagerContent(selectedTab) { page ->
+                selectedTab = page
+            }
         },
-        onToggleBlock = { message ->
-            // 显示 Toast 或 Snackbar
-        },
-        onSelectTab = viewModel::selectTab,
-        onRefreshReplies = viewModel::refreshReplies,
-        onLoadMoreReplies = viewModel::loadMoreReplies,
-        onRefreshTopics = viewModel::refreshTopics,
-        onLoadMoreTopics = viewModel::loadMoreTopics,
+    )
+}
+
+private fun MemberUiState.toUiModel(): MemberProfileUiModel? {
+    val user = member ?: return null
+    return MemberProfileUiModel(
+        username = user.username,
+        avatarUrl = user.avatarLargeUrl,
+        tagline = user.tagline,
+        intro = user.bio,
+        joinedDescription = "加入于${TimeUtil.getAbsoluteTime(user.created)},第 ${user.id} 号会员",
+        isOnline = isOnline,
+        location = user.location,
+        github = user.github,
+        twitter = user.twitter,
+        website = user.website,
+        btc = user.btc,
     )
 }

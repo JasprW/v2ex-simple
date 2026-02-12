@@ -8,14 +8,11 @@
 
 | 类别 | 总数 | 已完成 | 进行中 | 待开始 | 完成率 |
 |------|------|--------|--------|--------|--------|
-| **Activities** | 19 | 1 | 1 | 17 | 10% |
-| **Fragments** | 10 | 2 | 0 | 8 | 20% |
-| **Adapters** | 12 | 2 | 0 | 10 | 16% |
+| **Activities** | 19 | 1 | 1 | 17 | 5% |
+| **Fragments** | 10 | 1 | 0 | 9 | 10% |
+| **Adapters** | 12 | 1 | 0 | 11 | 8% |
 
-**整体进度: 15%**
-
-### 更新记录
-- **2026-02-11**: Member 页面 Compose 化完成 (待验收)
+**整体进度: 7%**
 
 ### 已完成 ✅
 - **Topic Detail 页面** (参考 `jet_compose-backup-20260210` 分支)
@@ -158,47 +155,63 @@
 
 ### 3. 用户相关 (Member)
 
-#### MemberActivity ✅ Compose 实现已创建
-- **文件路径**: 
-  - `im.fdx.v2ex.ui.member.MemberActivity` (原 XML 实现)
-  - `im.fdx.v2ex.ui.member.MemberActivityCompose` (新 Compose 实现)
-- **布局文件**: `activity_member.xml` (保留)
-- **当前实现**: ✅ **Compose** (待验收)
+#### MemberActivity
+- **文件路径**: `im.fdx.v2ex.ui.member.MemberActivity`
+- **布局文件**: `activity_member.xml` (保留，待验收后删除)
+- **当前实现**: Compose + AndroidView (Hybrid)
 - **复杂度**: 🟡 中
 - **功能描述**:
   - 用户资料详情页
-  - HorizontalPager (用户主题、用户回复)
+  - Material 3 TopAppBar + Profile Card + PrimaryTabRow
+  - ViewPager2 承载 TopicsFragment/UserReplyFragment（过渡方案）
   - 用户头像、简介、统计数据
-  - 社交链接 (GitHub, Twitter, Location, Website, Bitcoin)
-  - 关注/屏蔽/举报功能
-- **Compose 文件**:
-  - `MemberViewModel.kt` - 状态管理和业务逻辑
-  - `MemberUiState.kt` - UI 状态定义
-  - `MemberRoute.kt` - 路由组件
-  - `MemberScreen.kt` - 主屏幕 (带 Preview)
-  - `MemberProfileHeader.kt` - 用户资料头部
-  - `MemberTopicsContent.kt` - 主题列表内容
-  - `MemberRepliesContent.kt` - 回复列表内容
-- **状态**: 🟡 **待验收**
+- **改造难点**:
+  - 后续将 ViewPager2/Fragment 替换为纯 Compose 列表
+- **依赖页面**: UserReplyFragment, ReplyAdapter, TopicsFragment
+- **状态**: 🟨 进行中
 - **优先级**: 🔥 中
-- **预计工时**: 2-3 天 (✅ 已完成)
+- **预计工时**: 2-3 天
 
-#### UserReplyFragment ✅ 已被替代
+- **已落地（本次）**:
+  - 新增 `MemberViewModel`，将页面业务逻辑从 Activity 拆出
+  - 新增 `MemberRoute` / `MemberScreen`，样式代码全部可预览
+  - 使用 Material 3 组件构建页面骨架与操作菜单
+  - 使用 Material 标准图标替代业务入口图标
+  - 主题 Tab 改为 `MemberTopicComposeFragment` + `MemberTopicsRoute`
+  - 回复 Tab 改为 `MemberReplyComposeFragment` + `MemberRepliesRoute`
+  - 保留 ViewPager2 作为过渡容器，确保功能与布局一致
+
+#### UserReplyFragment
 - **文件路径**: `im.fdx.v2ex.ui.member.UserReplyFragment`
-- **当前实现**: ✅ **MemberRepliesContent** (Compose)
-- **替代文件**: `im.fdx.v2ex.ui.member.compose.MemberRepliesContent`
+- **布局文件**: `fragment_user_reply.xml`
+- **当前实现**: XML + ViewBinding（已由 Compose Fragment 接管，待删除）
 - **复杂度**: 🟢 低
 - **功能描述**:
-  - 用户回复列表 (LazyColumn)
-  - 下拉刷新、上拉加载更多
-- **状态**: ✅ **已完成 (被 Compose 替代)**
+  - 用户回复列表
+  - RecyclerView + ReplyAdapter
+- **状态**: 🟨 进行中
+- **优先级**: 🔥 中 (跟随 MemberActivity)
+- **预计工时**: 1 天
 
-#### ReplyAdapter ✅ 已被替代
+- **已落地（本次）**:
+  - 新增 `MemberReplyComposeFragment` 作为回复 Tab 的 Compose 容器
+  - 新增 `MemberRepliesViewModel` + `MemberRepliesUiState`
+  - 新增 `MemberRepliesRoute` / `MemberRepliesScreen`
+  - 回复列表改为 `LazyColumn`，并使用 `titleMedium + bodyLarge + labelLarge` 标准 typography
+  - 支持分页加载与刷新入口
+  - 回复内容渲染已接入 `GoodTextView`（通过 `AndroidView`），避免 HTML 标签原样显示
+
+- **TODO（后续评估）**:
+  - 评估是否将 `GoodTextView` 完整替换为纯 Compose 富文本组件
+
+#### ReplyAdapter
 - **文件路径**: `im.fdx.v2ex.ui.member.ReplyAdapter`
-- **当前实现**: ✅ **LazyColumn + ReplyItem** (Compose)
-- **替代文件**: `MemberRepliesContent.kt` 中的 ReplyItem
+- **当前实现**: RecyclerView.Adapter（仅保留兼容，待删除）
 - **复杂度**: 🟢 低
-- **状态**: ✅ **已完成 (被 Compose 替代)**
+- **改造方案**: 已由 `MemberRepliesScreen` 的 `LazyColumn` 替代
+- **状态**: 🟨 进行中
+- **优先级**: 🔥 中
+- **预计工时**: 0.5 天
 
 ---
 

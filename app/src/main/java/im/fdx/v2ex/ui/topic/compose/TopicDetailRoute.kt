@@ -483,7 +483,6 @@ private fun TopicDetailScreen(
 
                     itemsIndexed(
                         items = uiState.replies,
-                        key = { _, reply -> reply.id },
                     ) { index, reply ->
                         ReplyCard(
                             reply = reply,
@@ -1184,7 +1183,9 @@ private fun UserRepliesBottomSheet(
                 .fillMaxWidth()
                 .height(420.dp),
         ) {
-            itemsIndexed(replies, key = { _, item -> item.id }) { index, item ->
+            itemsIndexed(
+                items = replies,
+            ) { index, item ->
                 ReplyCard(
                     reply = item,
                     rowNum = item.getRowNum(index + 1),

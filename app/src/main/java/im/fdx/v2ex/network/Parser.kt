@@ -422,7 +422,7 @@ class Parser(private val htmlStr: String) {
                 val create = e.getElementsByClass("fade").first()?.ownText()
                 model.topic.title = title
                 model.topic.id = fakeId?.split("#")?.get(0) ?: ""
-                model.create = TimeUtil.toUtcTime(create)
+                model.create = 0L
                 model.createdOriginal = create?:""
                 val contentElement: Element? = e.nextElementSibling()
                 val content = contentElement?.getElementsByClass("reply_content")?.first()

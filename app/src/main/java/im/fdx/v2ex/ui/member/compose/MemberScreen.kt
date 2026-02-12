@@ -1,19 +1,31 @@
 package im.fdx.v2ex.ui.member.compose
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Report
+import androidx.compose.material.icons.filled.Tag
+import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,296 +37,304 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import im.fdx.v2ex.ui.compose.theme.V2exTheme
-import im.fdx.v2ex.ui.member.Member
-import im.fdx.v2ex.ui.member.MemberRepliesUiState
-import im.fdx.v2ex.ui.member.MemberTab
-import im.fdx.v2ex.ui.member.MemberTopicsUiState
-import im.fdx.v2ex.ui.member.MemberUiState
 
-/**
- * Member 页面主屏幕
- */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+data class MemberProfileUiModel(
+    val username: String,
+    val avatarUrl: String,
+    val tagline: String? = null,
+    val intro: String? = null,
+    val joinedDescription: String = "",
+    val isOnline: Boolean = false,
+    val location: String? = null,
+    val github: String? = null,
+    val twitter: String? = null,
+    val website: String? = null,
+    val btc: String? = null,
+)
+
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun MemberScreen(
-    uiState: MemberUiState,
-    repliesState: MemberRepliesUiState,
-    topicsState: MemberTopicsUiState,
-    selectedTab: MemberTab,
-    onNavigateBack: () -> Unit,
-    onTopicClick: (String) -> Unit,
-    onReportClick: (String, String) -> Unit,
-    onShowLoginHint: () -> Unit,
-    onToggleFollow: (String) -> Unit,
-    onToggleBlock: (String) -> Unit,
-    onSelectTab: (MemberTab) -> Unit,
-    onRefreshReplies: () -> Unit,
-    onLoadMoreReplies: () -> Unit,
-    onRefreshTopics: () -> Unit,
-    onLoadMoreTopics: () -> Unit,
+    uiModel: MemberProfileUiModel?,
+    tabs: List<String>,
+    selectedTab: Int,
+    isFollowed: Boolean,
+    isBlocked: Boolean,
+    showRelationActions: Boolean,
+    onBack: () -> Unit,
+    onSelectTab: (Int) -> Unit,
+    onToggleFollow: () -> Unit,
+    onToggleBlock: () -> Unit,
+    onReport: () -> Unit,
+    onOpenLocation: () -> Unit,
+    onOpenGithub: () -> Unit,
+    onOpenTwitter: () -> Unit,
+    onOpenWebsite: () -> Unit,
+    onOpenBitcoin: () -> Unit,
     modifier: Modifier = Modifier,
+    pagerContent: @Composable (Modifier) -> Unit,
 ) {
-    val pagerState = rememberPagerState(pageCount = { MemberTab.entries.size })
-    var showMenu by remember { mutableStateOf(false) }
-
-    // 同步 Tab 和 Pager
-    LaunchedEffect(selectedTab) {
-        val pageIndex = MemberTab.entries.indexOf(selectedTab)
-        if (pagerState.currentPage != pageIndex) {
-            pagerState.animateScrollToPage(pageIndex)
-        }
-    }
-
-    LaunchedEffect(pagerState.currentPage) {
-        val tab = MemberTab.entries[pagerState.currentPage]
-        if (selectedTab != tab) {
-            onSelectTab(tab)
-        }
-    }
-
+    var actionExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = when (uiState) {
-                            is MemberUiState.Success -> uiState.member.username
-                            else -> "用户资料"
-                        }
-                    )
+                    Text(text = uiModel?.username.orEmpty())
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回"
+                            contentDescription = "返回",
                         )
                     }
                 },
                 actions = {
-                    if (uiState is MemberUiState.Success && !uiState.isMe) {
-                        IconButton(onClick = { showMenu = true }) {
+                    if (showRelationActions) {
+                        IconButton(onClick = onToggleFollow) {
                             Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "更多"
+                                imageVector = if (isFollowed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = if (isFollowed) "取消关注" else "关注",
                             )
                         }
-
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            // 关注/取消关注
-                            DropdownMenuItem(
-                                text = {
-                                    Text(if (uiState.isFollowed) "取消关注" else "关注")
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = if (uiState.isFollowed) {
-                                            Icons.Default.Favorite
-                                        } else {
-                                            Icons.Default.FavoriteBorder
-                                        },
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onToggleFollow(
-                                        if (uiState.isFollowed) "取消关注成功" else "关注成功"
-                                    )
-                                }
-                            )
-
-                            // 屏蔽/取消屏蔽
-                            DropdownMenuItem(
-                                text = {
-                                    Text(if (uiState.isBlocked) "取消屏蔽" else "屏蔽")
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Block,
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onToggleBlock(
-                                        if (uiState.isBlocked) {
-                                            "你已取消屏蔽该用户"
-                                        } else {
-                                            "屏蔽成功，你将无法看到该用户的帖子和评论"
-                                        }
-                                    )
-                                }
-                            )
-
-                            // 举报
-                            DropdownMenuItem(
-                                text = { Text("举报") },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Report,
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onReportClick(
-                                        uiState.member.username,
-                                        "https://www.v2ex.com/member/${uiState.member.username}"
-                                    )
-                                }
-                            )
+                        Box {
+                            IconButton(onClick = { actionExpanded = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = "更多操作",
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = actionExpanded,
+                                onDismissRequest = { actionExpanded = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("${if (isBlocked) "取消" else ""}屏蔽") },
+                                    leadingIcon = {
+                                        Icon(imageVector = Icons.Filled.Block, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        actionExpanded = false
+                                        onToggleBlock()
+                                    },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("举报") },
+                                    leadingIcon = {
+                                        Icon(imageVector = Icons.Filled.Report, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        actionExpanded = false
+                                        onReport()
+                                    },
+                                )
+                            }
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
             )
-        }
-    ) { paddingValues ->
+        },
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(innerPadding),
         ) {
-            // 用户资料头部
-            MemberProfileHeader(
-                uiState = uiState,
-                modifier = Modifier
+            MemberProfileCard(
+                model = uiModel,
+                onOpenLocation = onOpenLocation,
+                onOpenGithub = onOpenGithub,
+                onOpenTwitter = onOpenTwitter,
+                onOpenWebsite = onOpenWebsite,
+                onOpenBitcoin = onOpenBitcoin,
             )
 
-            // Tab 栏
-            PrimaryTabRow(
-                selectedTabIndex = MemberTab.entries.indexOf(selectedTab)
-            ) {
-                MemberTab.entries.forEach { tab ->
+            PrimaryTabRow(selectedTabIndex = selectedTab) {
+                tabs.forEachIndexed { index, label ->
                     Tab(
-                        selected = selectedTab == tab,
-                        onClick = { onSelectTab(tab) },
+                        selected = selectedTab == index,
+                        onClick = { onSelectTab(index) },
                         text = {
-                            val count = when (tab) {
-                                MemberTab.TOPICS -> {
-                                    (topicsState as? MemberTopicsUiState.Success)?.topics?.size?.toString() ?: ""
-                                }
-                                MemberTab.REPLIES -> {
-                                    (repliesState as? MemberRepliesUiState.Success)?.replies?.size?.toString() ?: ""
-                                }
-                            }
-                            Text("${tab.title} ${if (count.isNotEmpty()) "($count)" else ""}")
-                        }
+                            Text(
+                                text = label,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        },
                     )
                 }
             }
 
-            // 内容区域
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (MemberTab.entries[page]) {
-                    MemberTab.TOPICS -> {
-                        MemberTopicsContent(
-                            state = topicsState,
-                            onTopicClick = onTopicClick,
-                            onRefresh = onRefreshTopics,
-                            onLoadMore = onLoadMoreTopics
+            pagerContent(Modifier.fillMaxSize())
+        }
+    }
+}
+
+@Composable
+private fun MemberProfileCard(
+    model: MemberProfileUiModel?,
+    onOpenLocation: () -> Unit,
+    onOpenGithub: () -> Unit,
+    onOpenTwitter: () -> Unit,
+    onOpenWebsite: () -> Unit,
+    onOpenBitcoin: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        if (model == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp),
+            )
+            return@Column
+        }
+
+        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box {
+                    AsyncImage(
+                        model = model.avatarUrl,
+                        contentDescription = "用户头像",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                    if (model.isOnline) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(14.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.tertiary),
                         )
                     }
-                    MemberTab.REPLIES -> {
-                        MemberRepliesContent(
-                            state = repliesState,
-                            onTopicClick = onTopicClick,
-                            onRefresh = onRefreshReplies,
-                            onLoadMore = onLoadMoreReplies
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = model.username,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    if (model.joinedDescription.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = model.joinedDescription,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
+
+            if (!model.tagline.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = model.tagline,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+
+            if (!model.intro.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = model.intro,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            val linkItems = buildList {
+                if (!model.location.isNullOrBlank()) add(LinkAction(Icons.Filled.LocationOn, onOpenLocation, "位置"))
+                if (!model.twitter.isNullOrBlank()) add(LinkAction(Icons.Filled.Tag, onOpenTwitter, "Twitter"))
+                if (!model.github.isNullOrBlank()) add(LinkAction(Icons.Filled.Code, onOpenGithub, "GitHub"))
+                if (!model.btc.isNullOrBlank()) add(LinkAction(Icons.Filled.TravelExplore, onOpenBitcoin, "Bitcoin"))
+                if (!model.website.isNullOrBlank()) add(LinkAction(Icons.Filled.Language, onOpenWebsite, "网站"))
+            }
+
+            if (linkItems.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    linkItems.forEach { item ->
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.contentDescription,
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clickable(onClick = item.onClick),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
         }
     }
 }
+
+private data class LinkAction(
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val onClick: () -> Unit,
+    val contentDescription: String,
+)
 
 @Preview(showBackground = true)
 @Composable
 private fun MemberScreenPreview() {
     V2exTheme {
         MemberScreen(
-            uiState = MemberUiState.Success(
-                member = Member(
-                    id = "12345",
-                    username = "testuser",
-                    tagline = "这是一个测试用户",
-                    bio = "这里是个人简介",
-                    avatar_normal = "",
-                    created = "1234567890"
-                ),
-                isFollowed = false,
-                isBlocked = false,
+            uiModel = MemberProfileUiModel(
+                username = "Livid",
+                avatarUrl = "",
+                tagline = "V2EX 创始人",
+                intro = "Write less, do more.",
+                joinedDescription = "加入于 2009-01-01, 第 1 号会员",
                 isOnline = true,
-                isMe = false
+                location = "Shanghai",
+                github = "livid",
+                website = "v2ex.com",
             ),
-            repliesState = MemberRepliesUiState.Success(
-                replies = emptyList(),
-                currentPage = 1,
-                totalPages = 1
-            ),
-            topicsState = MemberTopicsUiState.Success(
-                topics = emptyList(),
-                currentPage = 1,
-                totalPages = 1
-            ),
-            selectedTab = MemberTab.TOPICS,
-            onNavigateBack = {},
-            onTopicClick = {},
-            onReportClick = { _, _ -> },
-            onShowLoginHint = {},
+            tabs = listOf("主题 (42)", "回复 (128)"),
+            selectedTab = 0,
+            isFollowed = true,
+            isBlocked = false,
+            showRelationActions = true,
+            onBack = {},
+            onSelectTab = {},
             onToggleFollow = {},
             onToggleBlock = {},
-            onSelectTab = {},
-            onRefreshReplies = {},
-            onLoadMoreReplies = {},
-            onRefreshTopics = {},
-            onLoadMoreTopics = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Loading")
-@Composable
-private fun MemberScreenLoadingPreview() {
-    V2exTheme {
-        MemberScreen(
-            uiState = MemberUiState.Loading,
-            repliesState = MemberRepliesUiState.Loading,
-            topicsState = MemberTopicsUiState.Loading,
-            selectedTab = MemberTab.TOPICS,
-            onNavigateBack = {},
-            onTopicClick = {},
-            onReportClick = { _, _ -> },
-            onShowLoginHint = {},
-            onToggleFollow = {},
-            onToggleBlock = {},
-            onSelectTab = {},
-            onRefreshReplies = {},
-            onLoadMoreReplies = {},
-            onRefreshTopics = {},
-            onLoadMoreTopics = {}
+            onReport = {},
+            onOpenLocation = {},
+            onOpenGithub = {},
+            onOpenTwitter = {},
+            onOpenWebsite = {},
+            onOpenBitcoin = {},
+            pagerContent = {
+                Box(modifier = it.fillMaxSize())
+            },
         )
     }
 }
