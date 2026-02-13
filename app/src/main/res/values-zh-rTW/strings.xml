@@ -63,6 +63,9 @@
     <string name="choose_node">選擇節點</string>
     <string name="post_reply">發表回复</string>
     <string name="notification">通知</string>
+    <string name="settings_logout_confirm_title">提示</string>
+    <string name="settings_logout_confirm_message">確定要退出嗎</string>
+    <string name="settings_logout_success">已退出登錄</string>
     <string name="copy_content">複製</string>
     <string name="close">關閉</string>
     <string name="cancel">取消</string>

@@ -3,220 +3,177 @@ package im.fdx.v2ex.ui
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
-import android.util.TypedValue
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.work.WorkManager
-import com.elvishew.xlog.XLog
-import im.fdx.v2ex.*
-import im.fdx.v2ex.network.HttpHelper
+import com.google.android.material.color.MaterialColors
+import im.fdx.v2ex.BuildConfig
+import im.fdx.v2ex.R
+import im.fdx.v2ex.myApp
+import im.fdx.v2ex.pref
+import im.fdx.v2ex.setLogin
+import im.fdx.v2ex.ui.TabSettingActivity
+import im.fdx.v2ex.ui.compose.theme.V2exTheme
+import im.fdx.v2ex.ui.settings.compose.SettingsScreen
+import im.fdx.v2ex.ui.settings.compose.SettingsUiState
 import im.fdx.v2ex.utils.Keys
 import im.fdx.v2ex.utils.Keys.PREF_NIGHT_MODE
 import im.fdx.v2ex.utils.Keys.PREF_TAB
 import im.fdx.v2ex.utils.Keys.PREF_TEXT_SIZE
-import im.fdx.v2ex.utils.Keys.PREF_VERSION
 import im.fdx.v2ex.utils.Keys.TAG_WORKER
 import im.fdx.v2ex.utils.Keys.notifyID
-import im.fdx.v2ex.utils.extensions.setUpToolbar
 import im.fdx.v2ex.utils.extensions.toast
-
 
 val isUsePageNum get() = pref.getBoolean("pref_page_num", false)
 
 class SettingsActivity : BaseActivity() {
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_settings)
-    applyEdgeToEdge(findViewById(android.R.id.content), findViewById(R.id.appbar_settings))
-    setUpToolbar(getString(R.string.settings))
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.container, SettingsFragment())
-        .commit()
-  }
+    private var uiState by mutableStateOf(SettingsUiState())
+    private var versionTapCountdown = 7
 
-  class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        applyEdgeToEdgeWindow()
+        uiState = loadUiState()
 
-    private var count: Int = 0
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, what: String?) {
-      addPreferencesFromResource(R.xml.preference)
-      prefTab()
-      prefNightMode()
-      prefRate()
-      prefLanguage()
-      prefVersion()
-
-      if (myApp.isLogin) {
-        addPreferencesFromResource(R.xml.preference_login)
-        findPreference<Preference>("group_user")?.title = pref.getString(Keys.PREF_USERNAME, "user")
-        prefUser()
-        prefMessage()
-      }
-
-    }
-
-    private fun prefLanguage() {}
-
-    private fun prefNightMode() {
-      prefAmoled()
-    }
-
-    private fun prefAmoled() {
-      val prefAmoled = findPreference<Preference>(Keys.PREF_AMOLED) ?: return
-      updateAmoledSummary(prefAmoled)
-      prefAmoled.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-        val items = arrayOf(getString(R.string.normal_dark), getString(R.string.super_dark))
-        val currentIndex = if (pref.getBoolean(Keys.PREF_AMOLED, true)) 1 else 0
-        AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.dark_mode_color)
-            .setSingleChoiceItems(items, currentIndex) { dialog, which ->
-              pref.edit { putBoolean(Keys.PREF_AMOLED, which == 1) }
-              updateAmoledSummary(prefAmoled)
-              dialog.dismiss()
+        setContent {
+            V2exTheme {
+                SettingsScreen(
+                    uiState = uiState,
+                    isLogin = myApp.isLogin,
+                    username = pref.getString(Keys.PREF_USERNAME, "user") ?: "user",
+                    versionName = BuildConfig.VERSION_NAME,
+                    onBack = { finish() },
+                    onOpenTabSetting = {
+                        startActivity(Intent(this, TabSettingActivity::class.java))
+                    },
+                    onTextSizeChange = { value ->
+                        pref.edit { putString(PREF_TEXT_SIZE, value) }
+                        LocalBroadcastManager.getInstance(myApp).sendBroadcast(Intent(Keys.ACTION_TEXT_SIZE_CHANGE))
+                        finish()
+                    },
+                    onViewPagerChange = { enabled ->
+                        uiState = uiState.copy(viewPagerEnabled = enabled)
+                        pref.edit { putBoolean("pref_viewpager", enabled) }
+                    },
+                    onNightModeChange = { value ->
+                        uiState = uiState.copy(nightMode = value)
+                        pref.edit { putString(PREF_NIGHT_MODE, value) }
+                        AppCompatDelegate.setDefaultNightMode(value.toInt())
+                    },
+                    onAmoledChange = { enabled ->
+                        if (uiState.amoledEnabled == enabled) return@SettingsScreen
+                        uiState = uiState.copy(amoledEnabled = enabled)
+                        pref.edit { putBoolean(Keys.PREF_AMOLED, enabled) }
+                        recreate()
+                    },
+                    onLanguageChange = { value ->
+                        pref.edit { putString("pref_language", value) }
+                        LocalBroadcastManager.getInstance(myApp).sendBroadcast(Intent(Keys.ACTION_LANGUAGE_CHANGE))
+                        finish()
+                    },
+                    onRateClick = { openRatePage() },
+                    onVersionClick = { handleVersionClick() },
+                    onAddRowChange = { enabled ->
+                        uiState = uiState.copy(addRowEnabled = enabled)
+                        pref.edit { putBoolean("pref_add_row", enabled) }
+                    },
+                    onPageNumChange = { enabled ->
+                        uiState = uiState.copy(pageNumEnabled = enabled)
+                        pref.edit { putBoolean("pref_page_num", enabled) }
+                    },
+                    onMessageEnabledChange = { enabled ->
+                        uiState = uiState.copy(
+                            messageEnabled = enabled,
+                            backgroundMessageEnabled = if (enabled) uiState.backgroundMessageEnabled else false,
+                        )
+                        pref.edit {
+                            putBoolean("pref_msg", enabled)
+                            if (!enabled) putBoolean("pref_background_msg", false)
+                        }
+                        if (!enabled) {
+                            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                            manager.cancel(notifyID)
+                            WorkManager.getInstance(myApp).cancelAllWorkByTag(TAG_WORKER)
+                        }
+                    },
+                    onBackgroundMessageChange = { enabled ->
+                        uiState = uiState.copy(backgroundMessageEnabled = enabled)
+                        pref.edit { putBoolean("pref_background_msg", enabled) }
+                    },
+                    onMessagePeriodChange = { value ->
+                        uiState = uiState.copy(messagePeriod = value)
+                        pref.edit { putString("pref_msg_period", value) }
+                    },
+                    onLogoutConfirmed = {
+                        setLogin(false)
+                        pref.edit {
+                            remove(PREF_TEXT_SIZE)
+                            remove(PREF_TAB)
+                        }
+                        toast(getString(R.string.settings_logout_success))
+                        finish()
+                    },
+                )
             }
-            .show()
-        true
-      }
-    }
-
-    private fun updateAmoledSummary(preference: Preference) {
-      val isAmoled = pref.getBoolean(Keys.PREF_AMOLED, true)
-      preference.summary = if (isAmoled) {
-        getString(R.string.super_dark)
-      } else {
-        getString(R.string.normal_dark)
-      }
-    }
-
-    private fun prefMessage() {
-      val listPreference = findPreference<ListPreference>("pref_msg_period")
-      if (!pref.getBoolean("pref_msg", false)) {
-        findPreference<Preference>("pref_background_msg")?.isEnabled = false
-        findPreference<Preference>("pref_msg_period")?.isEnabled = false
-      }
-    }
-
-    private fun prefTab() {
-      findPreference<Preference>("pref_tab_bar")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-        startActivity(Intent(requireActivity(), TabSettingActivity::class.java))
-        true
-      }
-    }
-
-    private fun prefUser() {
-      findPreference<Preference>(Keys.PREF_LOGOUT)?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-
-        AlertDialog.Builder(requireActivity())
-            .setTitle("提示")
-            .setMessage("确定要退出吗")
-            .setPositiveButton(R.string.ok) { _, _ ->
-              HttpHelper.myCookieJar.clear()
-              setLogin(false)
-              findPreference<Preference>(Keys.PREF_LOGOUT)?.isEnabled = false
-              pref.edit {
-                remove(PREF_TEXT_SIZE)
-                remove(PREF_TAB)
-              }
-              activity?.finish()
-              activity?.toast("已退出登录")
-            }
-            .setNegativeButton(R.string.cancel) { _, _ ->
-            }
-            .show()
-        true
-      }
-    }
-
-    private fun prefVersion() {
-
-      findPreference<Preference>(PREF_VERSION)?.summary = BuildConfig.VERSION_NAME
-
-      val ha = resources.getStringArray(R.array.j)
-      count = 7
-      findPreference<Preference>(PREF_VERSION)?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-        if (count < 0) {
-          count = 3
-          activity?.toast(ha[(System.currentTimeMillis() / 100 % ha.size).toInt()])
         }
-        count--
-        true
-      }
     }
 
-    private fun prefRate() {
-      findPreference<Preference>(Keys.PREF_RATES)?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+    private fun applyEdgeToEdgeWindow() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val surfaceColor = MaterialColors.getColor(this, R.attr.colorSurface, Color.BLACK)
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.5f
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
+    }
+
+    private fun loadUiState(): SettingsUiState {
+        return SettingsUiState(
+            textSize = pref.getString(PREF_TEXT_SIZE, "0") ?: "0",
+            viewPagerEnabled = pref.getBoolean("pref_viewpager", true),
+            nightMode = pref.getString(PREF_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())
+                ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString(),
+            amoledEnabled = pref.getBoolean(Keys.PREF_AMOLED, true),
+            language = pref.getString("pref_language", "default") ?: "default",
+            addRowEnabled = pref.getBoolean("pref_add_row", false),
+            pageNumEnabled = pref.getBoolean("pref_page_num", false),
+            messageEnabled = pref.getBoolean("pref_msg", true),
+            backgroundMessageEnabled = pref.getBoolean("pref_background_msg", false),
+            messagePeriod = pref.getString("pref_msg_period", "900") ?: "900",
+        )
+    }
+
+    private fun handleVersionClick() {
+        if (versionTapCountdown < 0) {
+            versionTapCountdown = 3
+            val eggs = resources?.getStringArray(R.array.j).orEmpty()
+            if (eggs.isEmpty()) return
+            toast(eggs[(System.currentTimeMillis() / 100 % eggs.size).toInt()])
+        }
+        versionTapCountdown--
+    }
+
+    private fun openRatePage() {
         try {
-          val uri = "market://details?id=im.fdx.v2ex".toUri()
-          val intent = Intent(Intent.ACTION_VIEW, uri)
-          intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-          startActivity(intent)
-        } catch (e: Exception) {
-          activity?.toast(getString(R.string.there_is_no_app_store))
+            val intent = Intent(Intent.ACTION_VIEW, "market://details?id=im.fdx.v2ex".toUri())
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        } catch (_: Exception) {
+            toast(getString(R.string.there_is_no_app_store))
         }
-        true
-      }
     }
-
-    override fun onResume() {
-      super.onResume()
-      pref.registerOnSharedPreferenceChangeListener(this)
-
-    }
-
-    override fun onPause() {
-      super.onPause()
-      pref.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-      Log.w("PREF", key.toString())
-      when (key) {
-        "pref_msg" ->
-
-          if (sharedPreferences.getBoolean(key, false)) {
-            findPreference<Preference>("pref_msg_period")?.isEnabled = true
-            findPreference<Preference>("pref_background_msg")?.isEnabled = true
-          } else {
-            val notificationManager = activity?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(notifyID)
-            WorkManager.getInstance(myApp).cancelAllWorkByTag(TAG_WORKER)
-            findPreference<Preference>("pref_msg_period")?.isEnabled = false
-            findPreference<Preference>("pref_background_msg")?.isEnabled = false
-
-          }
-        "pref_background_msg" -> {}
-        "pref_msg_period" -> {}
-        "pref_add_row" -> {}
-        PREF_NIGHT_MODE -> {
-          val mode = pref.getString(PREF_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_NO.toString())!!
-          AppCompatDelegate.setDefaultNightMode(mode.toInt())
-        }
-        PREF_TEXT_SIZE -> {
-          LocalBroadcastManager.getInstance(myApp).sendBroadcast(Intent(Keys.ACTION_TEXT_SIZE_CHANGE))
-          activity?.finish()
-        }
-        Keys.PREF_AMOLED -> {
-          findPreference<Preference>(Keys.PREF_AMOLED)?.let { updateAmoledSummary(it) }
-          activity?.recreate()
-        }
-        "pref_language" -> {
-          LocalBroadcastManager.getInstance(myApp).sendBroadcast(Intent(Keys.ACTION_LANGUAGE_CHANGE))
-          activity?.finish()
-        }
-      }
-    }
-  }
 }
