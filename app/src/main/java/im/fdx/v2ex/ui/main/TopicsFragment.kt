@@ -10,8 +10,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -31,6 +45,7 @@ import im.fdx.v2ex.ui.isUsePageNum
 import im.fdx.v2ex.ui.main.model.SearchResult
 import im.fdx.v2ex.ui.member.Member
 import im.fdx.v2ex.ui.member.MemberActivity
+import im.fdx.v2ex.ui.compose.theme.V2exTheme
 import im.fdx.v2ex.utils.EndlessOnScrollListener
 import im.fdx.v2ex.utils.Keys
 import im.fdx.v2ex.utils.TimeUtil
@@ -48,7 +63,11 @@ import java.util.*
  */
 class TopicsFragment : Fragment() {
 
+    var onLoadingChanged: ((Boolean) -> Unit)? = null
+    var onLoadingMoreChanged: ((Boolean) -> Unit)? = null
+
     private lateinit var mAdapter: TopicsRVAdapter
+    private val loadingFooterAdapter = SearchLoadingFooterAdapter()
     private lateinit var mSwipeLayout: SwipeRefreshLayout
     private var mRecyclerView: RecyclerView? = null
     private var fab: FloatingActionButton? = null //有可能为空
@@ -56,6 +75,7 @@ class TopicsFragment : Fragment() {
     private var pageNumberView: PageNumberView? = null
     var mRequestURL: String = ""
     private lateinit var mScrollListener: EndlessOnScrollListener
+    private var pendingSearchQuery: SearchOption? = null
     var currentMode = FROM_HOME
     var totalPage = 0
     var isEndlessMode = true // 模式无限滚动模式
@@ -119,7 +139,9 @@ class TopicsFragment : Fragment() {
             override fun onLoadMore(currentPage: Int) {
                 logw("currentPage: $currentPage")
                 mScrollListener.loading = true
-                mSwipeLayout.isRefreshing = true
+                if (currentMode != FROM_SEARCH) {
+                    mSwipeLayout.isRefreshing = true
+                }
                 loadMoreTopic(currentPage)
             }
         }
@@ -179,6 +201,11 @@ class TopicsFragment : Fragment() {
             }
         }
 
+        if (currentMode == FROM_SEARCH) {
+            mSwipeLayout.isEnabled = false
+            mRecyclerView?.adapter = ConcatAdapter(mAdapter, loadingFooterAdapter)
+        }
+
         val topicList: ArrayList<Topic>? = args?.getParcelableArrayList(Keys.KEY_TOPIC_LIST)
         if (currentMode == FROM_SEARCH) {
             flContainer.showNoContent(getString(R.string.please_input_key_to_search))
@@ -190,13 +217,21 @@ class TopicsFragment : Fragment() {
             setUIData(topicList)
         } else {
             flContainer.hideNoContent()
-            mSwipeLayout.isRefreshing = true
+            if (currentMode != FROM_SEARCH) {
+                mSwipeLayout.isRefreshing = true
+            }
             getTopics(mRequestURL)
         }
 
         pageNumberView?.setSelectNumListener {
-            mSwipeLayout.isRefreshing = true
+            if (currentMode != FROM_SEARCH) {
+                mSwipeLayout.isRefreshing = true
+            }
             getTopics(mRequestURL, it)
+        }
+
+        if (currentMode == FROM_SEARCH) {
+            pendingSearchQuery?.let { startQuery(it) }
         }
 
         return layout
@@ -232,7 +267,19 @@ class TopicsFragment : Fragment() {
     }
 
     fun startQuery(q: SearchOption) {
+        if (!::mScrollListener.isInitialized || !::mAdapter.isInitialized || !::flContainer.isInitialized) {
+            query = q
+            pendingSearchQuery = q
+            return
+        }
+        pendingSearchQuery = null
         query = q
+        mScrollListener.restart()
+        activity?.runOnUiThread {
+            flContainer.hideNoContent()
+            mAdapter.clearAndNotify()
+            mRecyclerView?.visibility = View.GONE
+        }
         makeQuery(query)
     }
 
@@ -240,8 +287,14 @@ class TopicsFragment : Fragment() {
 
     fun showRefresh(show: Boolean) {
         activity?.runOnUiThread {
-            mSwipeLayout.isRefreshing = show
+            if (currentMode != FROM_SEARCH) {
+                mSwipeLayout.isRefreshing = show
+            }
             mScrollListener.loading = show
+            onLoadingChanged?.invoke(show)
+            if (!show) {
+                showLoadingMore(false)
+            }
         }
 
     }
@@ -364,7 +417,9 @@ class TopicsFragment : Fragment() {
 
     private fun setUIData(topicList: List<Topic>) {
         activity?.runOnUiThread {
-            mSwipeLayout.isRefreshing = false
+            if (currentMode != FROM_SEARCH) {
+                mSwipeLayout.isRefreshing = false
+            }
             mScrollListener.loading = false
             if (topicList.isEmpty()) {
                 flContainer.showNoContent()
@@ -446,7 +501,18 @@ class TopicsFragment : Fragment() {
             .addEncodedQueryParameter("username", option.username)
             .build()
 
-        showRefresh(true)
+        val isFirstPage = nextIndex == 0
+        if (isFirstPage) {
+            showRefresh(true)
+        } else {
+            activity?.runOnUiThread { showLoadingMore(true) }
+        }
+        if (currentMode == FROM_SEARCH && currentPage == 1) {
+            activity?.runOnUiThread {
+                mRecyclerView?.visibility = View.GONE
+                flContainer.hideNoContent()
+            }
+        }
         HttpHelper.OK_CLIENT
             .newCall(
                 Request.Builder()
@@ -457,7 +523,14 @@ class TopicsFragment : Fragment() {
             .start(object : Callback {
 
                 override fun onFailure(call: Call, e: IOException) {
-                    showRefresh(false)
+                    if (isFirstPage) {
+                        showRefresh(false)
+                    } else {
+                        activity?.runOnUiThread {
+                            mScrollListener.loading = false
+                            showLoadingMore(false)
+                        }
+                    }
                     dealError(context)
                 }
 
@@ -484,16 +557,35 @@ class TopicsFragment : Fragment() {
                     }
 
                     activity?.runOnUiThread {
-                        showRefresh(false)
+                        if (isFirstPage) {
+                            showRefresh(false)
+                        } else {
+                            mScrollListener.loading = false
+                            showLoadingMore(false)
+                        }
                         if (topics == null) {
-                            flContainer.showNoContent("未查询到内容，请重新查询")
+                            if (isFirstPage) {
+                                mAdapter.clearAndNotify()
+                                mRecyclerView?.visibility = View.GONE
+                                flContainer.showNoContent(getString(R.string.search_no_results))
+                            } else {
+                                mScrollListener.totalPage = (currentPage - 1).coerceAtLeast(1)
+                                loadingFooterAdapter.setMode(SearchLoadingFooterAdapter.Mode.NoMore)
+                            }
                             return@runOnUiThread
                         }
                         if (topics.isEmpty()) {
-                            flContainer.showNoContent("未查询到内容，请重新查询")
-                            mAdapter.clearAndNotify()
+                            if (isFirstPage) {
+                                flContainer.showNoContent(getString(R.string.search_no_results))
+                                mAdapter.clearAndNotify()
+                                mRecyclerView?.visibility = View.GONE
+                            } else {
+                                mScrollListener.totalPage = (currentPage - 1).coerceAtLeast(1)
+                                loadingFooterAdapter.setMode(SearchLoadingFooterAdapter.Mode.NoMore)
+                            }
                         } else {
                             flContainer.hideNoContent()
+                            mRecyclerView?.visibility = View.VISIBLE
                             if (nextIndex == 0) {
                                 topics.let { mAdapter.updateItems(it) }
                             } else {
@@ -507,8 +599,71 @@ class TopicsFragment : Fragment() {
             })
     }
 
+    private fun showLoadingMore(show: Boolean) {
+        if (currentMode == FROM_SEARCH) {
+            loadingFooterAdapter.setMode(if (show) SearchLoadingFooterAdapter.Mode.Loading else SearchLoadingFooterAdapter.Mode.Hidden)
+        }
+        onLoadingMoreChanged?.invoke(show)
+    }
+
     companion object {
         const val NUMBER_PER_PAGE = 10
+    }
+}
+
+private class SearchLoadingFooterAdapter : RecyclerView.Adapter<SearchLoadingFooterAdapter.FooterHolder>() {
+    enum class Mode { Hidden, Loading, NoMore }
+
+    private var mode = Mode.Hidden
+
+    fun setMode(next: Mode) {
+        if (mode == next) return
+        val oldVisible = mode != Mode.Hidden
+        val newVisible = next != Mode.Hidden
+        mode = next
+        when {
+            !oldVisible && newVisible -> notifyItemInserted(0)
+            oldVisible && !newVisible -> notifyItemRemoved(0)
+            oldVisible && newVisible -> notifyItemChanged(0)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FooterHolder {
+        return FooterHolder(ComposeView(parent.context))
+    }
+
+    override fun getItemCount(): Int = if (mode == Mode.Hidden) 0 else 1
+
+    override fun onBindViewHolder(holder: FooterHolder, position: Int) {
+        holder.view.setContent {
+            V2exTheme {
+                SearchLoadingFooter(mode)
+            }
+        }
+    }
+
+    class FooterHolder(val view: ComposeView) : RecyclerView.ViewHolder(view)
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun SearchLoadingFooter(mode: SearchLoadingFooterAdapter.Mode) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (mode) {
+            SearchLoadingFooterAdapter.Mode.Loading -> LoadingIndicator()
+            SearchLoadingFooterAdapter.Mode.NoMore -> Text(
+                text = stringResource(id = R.string.search_no_more_results),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            SearchLoadingFooterAdapter.Mode.Hidden -> Unit
+        }
     }
 }
 

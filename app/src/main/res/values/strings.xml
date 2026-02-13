@@ -168,6 +168,11 @@
     <string name="menu_reset">Reset</string>
     <string name="menu_save">Save</string>
     <string name="search">Search</string>
+    <string name="search_history_title">Search history</string>
+    <string name="search_history_clear_all">Clear all</string>
+    <string name="search_history_empty">No recent searches</string>
+    <string name="search_history_delete">Delete search history item</string>
+    <string name="search_clear_node_filter">Clear node filter</string>
     <string name="there_is_no_app_store">No App Store found in your phone</string>
     <string name="font_size">Font size</string>
     <string name="swipe_to_switch_topic">Swipe to switch topic</string>
@@ -177,6 +182,7 @@
     <string name="version">Version</string>
     <string name="iknow">I know</string>
     <string name="search_api_tips">Search API Tips</string>
+    <string name="search_api_notice">1. This search API comes from the open-source project https://www.sov2ex.com\n2. Results are sorted by newest by default</string>
     <string name="tips_tab_setting">Tips:\nIf logged in , it will show Node that you favored. Long press to reorder</string>
     <string name="light_mode">Light mode</string>
     <string name="use_device_setting">System default</string>
@@ -197,6 +203,8 @@
     <string name="please_input_content">Input topic content…</string>
     <string name="topic_title">Topic title</string>
     <string name="please_input_key_to_search">Input keywords to search</string>
+    <string name="search_no_results">No results found. Try another query.</string>
+    <string name="search_no_more_results">No more results</string>
     <string name="theme_background">Theme</string>
     <string name="pagenummode">Page number mode</string>
     <string name="show_pagenum_on">Show page number in favor and user page</string>

@@ -33,21 +33,27 @@ fun V2exTopicListItem(
     modifier: Modifier = Modifier,
     showNodeTitle: Boolean = true,
 ) {
+    val avatarUrl = topic.member?.avatarNormalUrl
+    val hasAvatar = !avatarUrl.isNullOrBlank()
+    val nodeTitle = topic.node?.title.orEmpty()
+    val showNodeMeta = showNodeTitle && nodeTitle.isNotBlank()
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-        AsyncImage(
-            model = topic.member?.avatarNormalUrl,
-            contentDescription = stringResource(id = R.string.it_is_avatar),
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape),
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
+        if (hasAvatar) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = stringResource(id = R.string.it_is_avatar),
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape),
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+        }
 
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -59,7 +65,7 @@ fun V2exTopicListItem(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                if (showNodeTitle && !topic.node?.title.isNullOrBlank()) {
+                if (showNodeMeta) {
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "·",
@@ -68,7 +74,7 @@ fun V2exTopicListItem(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = topic.node?.title.orEmpty(),
+                        text = nodeTitle,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

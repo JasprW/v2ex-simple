@@ -23,6 +23,7 @@ object Keys {
     const val KEY_PHOTO = "extra_photo"
     const val KEY_WARN_IMAGE_UPLOAD = "key_warn_image_upload"
     const val KEY_WARN_SEARCH_API = "key_warn_search_api"
+    const val KEY_SEARCH_HISTORY = "key_search_history"
     const val KEY_POSITION = "extra_position"
     const val KEY_USERNAME = "username"
     const val KEY_TYPE = "key_type"
